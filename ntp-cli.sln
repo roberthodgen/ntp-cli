@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobertHodgen.Ntp.Cli", "src\Cli\RobertHodgen.Ntp.Cli.csproj", "{5144A60D-3BD7-4727-864B-A6218EF14064}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobertHodgen.Ntp.Client", "src\Client\RobertHodgen.Ntp.Client.csproj", "{2AAD62B0-A6DF-4B1C-9B43-F33221081326}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F19A6B98-D444-44A8-9927-B38E0D7187DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roberthodgen.Ntp.Client.Tests", "src\Tests\Client\Roberthodgen.Ntp.Client.Tests.csproj", "{CA1A977B-96FE-48AE-90D2-6EF776B665D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{73243B23-7C5B-4A92-902E-B4B01B6CA1FB}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5144A60D-3BD7-4727-864B-A6218EF14064}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5144A60D-3BD7-4727-864B-A6218EF14064}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5144A60D-3BD7-4727-864B-A6218EF14064}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5144A60D-3BD7-4727-864B-A6218EF14064}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AAD62B0-A6DF-4B1C-9B43-F33221081326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AAD62B0-A6DF-4B1C-9B43-F33221081326}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AAD62B0-A6DF-4B1C-9B43-F33221081326}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AAD62B0-A6DF-4B1C-9B43-F33221081326}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA1A977B-96FE-48AE-90D2-6EF776B665D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA1A977B-96FE-48AE-90D2-6EF776B665D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA1A977B-96FE-48AE-90D2-6EF776B665D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA1A977B-96FE-48AE-90D2-6EF776B665D1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CA1A977B-96FE-48AE-90D2-6EF776B665D1} = {F19A6B98-D444-44A8-9927-B38E0D7187DC}
+	EndGlobalSection
+EndGlobal
