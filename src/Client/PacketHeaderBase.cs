@@ -151,22 +151,6 @@ public abstract record PacketHeaderBase
             position += field.SizeInBits / 8;
         }
 
-        var nth = 1;
-        foreach (var b in words)
-        {
-            Console.Write($"{Convert.ToString(b, toBase: 2).PadLeft(8, '0'),8}");
-            if (nth % 4 == 0)
-            {
-                Console.WriteLine();
-            }
-            else
-            {
-                Console.Write(" ");
-            }
-
-            nth++;
-        }
-
         return words;
     }
 
