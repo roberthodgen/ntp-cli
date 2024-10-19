@@ -1,6 +1,7 @@
 namespace RobertHodgen.Ntp.Client.Remote;
 
 using Fields;
+using Serilog;
 
 /// <summary>
 /// Packet Header Format
@@ -166,6 +167,23 @@ public abstract record PacketHeaderBase
         }
 
         return words;
+    }
+
+    public void LogDebugData()
+    {
+        Log.Debug("Leap indicator: {LeapIndicator}", LeapIndicator);
+        Log.Debug("Version number: {VersionNumber}", VersionNumber);
+        Log.Debug("Mode: {Mode}", Mode);
+        Log.Debug("Stratum: {Stratum}", Stratum);
+        Log.Debug("Poll: {Poll}", Poll);
+        Log.Debug("Precision: {Precision}", Precision);
+        Log.Debug("Root delay: {RootDelay}", RootDelay);
+        Log.Debug("Root dispersion: {RootDispersion}", RootDispersion);
+        Log.Debug("Reference ID: {ReferenceId}", ReferenceId);
+        Log.Debug("Reference timestamp: {ReferenceTimestamp}", ReferenceTimestamp);
+        Log.Debug("Origin timestamp: {OriginTimestamp}", OriginTimestamp);
+        Log.Debug("Receive timestamp: {ReceiveTimestamp}", ReceiveTimestamp);
+        Log.Debug("Transmit timestamp: {TransmitTimestamp}", TransmitTimestamp);
     }
 
     private IEnumerable<EncodableBase> FieldOrder()

@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.CommandLine;
 using RobertHodgen.Ntp.Client;
 using Serilog;
 using Serilog.Core;
@@ -27,27 +28,30 @@ Console.CancelKeyPress += (_, e) =>
 
 Log.Information("Network Time Protocol (NTP) Command Line Interface (CLI)");
 
-levelSwitch.MinimumLevel = LogEventLevel.Verbose; // TODO add option from CLI
+var rootCommand = new RootCommand("NTP CLI");
+var verboseOption = new Option<bool>("--verbose", description: "Enable verbose logging");
+var checkCommand = new Command("check", "Check an NTP server for a time offset");
+rootCommand.Add(checkCommand);
+checkCommand.AddOption(verboseOption);
 
-var request = await new Client().ConnectAsync(cts.Token);
-var responseHeaders = request.ServerResponse.Header;
+checkCommand.SetHandler(
+    async verbose =>
+    {
+        if (verbose)
+        {
+            levelSwitch.MinimumLevel = LogEventLevel.Verbose; // TODO add option from CLI
+        }
 
-Log.Debug("Server decoded response:");
-Log.Debug("  Leap indicator: {LeapIndicator}", responseHeaders.LeapIndicator);
-Log.Debug("  Version number: {VersionNumber}", responseHeaders.VersionNumber);
-Log.Debug("  Mode: {Mode}", responseHeaders.Mode);
-Log.Debug("  Stratum: {Stratum}", responseHeaders.Stratum);
-Log.Debug("  Poll: {Poll}", responseHeaders.Poll);
-Log.Debug("  Precision: {Precision}", responseHeaders.Precision);
-Log.Debug("  Root delay: {RootDelay}", responseHeaders.RootDelay);
-Log.Debug("  Root dispersion: {RootDispersion}", responseHeaders.RootDispersion);
-Log.Debug("  Reference ID: {ReferenceId}", responseHeaders.ReferenceId);
-Log.Debug("  Reference timestamp: {ReferenceTimestamp}", responseHeaders.ReferenceTimestamp);
-Log.Debug("  Origin timestamp: {OriginTimestamp}", responseHeaders.OriginTimestamp);
-Log.Debug("  Receive timestamp: {ReceiveTimestamp}", responseHeaders.ReceiveTimestamp);
-Log.Debug("  Transmit timestamp: {TransmitTimestamp}", responseHeaders.TransmitTimestamp);
+        var request = await new Client().ConnectAsync(cts.Token);
+        
+        Log.Debug("Server response headers:");
+        request.ServerResponse.Header.LogDebugData();
 
-Log.Debug("Local receive timestamp: {receiveTimestamp:O}", request.ServerResponse.DestinationTimestamp);
+        Log.Debug("Local receive timestamp: {receiveTimestamp:O}", request.ServerResponse.DestinationTimestamp);
 
-Log.Information("Theta: {Theta:c}", request.Theta());
-Log.Information("Delta: {Delta:c}", request.Delta());
+        Log.Information($"Theta: {request.Theta():c} (absolute time difference between client and server clocks)");
+        Log.Information($"Delta: {request.Delta():c} (round-trip delay)");
+
+    }, verboseOption);
+
+await rootCommand.InvokeAsync(args);

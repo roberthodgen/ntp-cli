@@ -2,7 +2,6 @@
 
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using Remote;
 using Remote.Fields;
 using Serilog;
@@ -22,42 +21,24 @@ public sealed class Client
     public async Task<Request> ConnectAsync(CancellationToken ct = default)
     {
         await InitializeClientAsync(ct);
-        var endpoint = new IPEndPoint(_addresses.First(), 123);
-        Log.Debug("Using: {Endpoint}", endpoint);
-        var client = new UdpClient();
-
-        var request = TransmitPacketHeader.CreateNewPacket();
-        var sent = await client.Client.SendToAsync(request.Encode(), SocketFlags.None, endpoint, ct);
+        using var client = new UdpClient();
+        var endpoint = CreateEndpoint();
+        var requestPacket = TransmitPacketHeader.CreateNewPacket();
+        var sent = await client.Client.SendToAsync(requestPacket.Encode(), SocketFlags.None, endpoint, ct);
         Log.Debug("Sent {Bytes} bytes to `{endpoint}`.", sent, endpoint);
 
-        // TODO receive next
         Memory<byte> buffer = new byte[48];
-        var received = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, endpoint, ct);
+        var response = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, endpoint, ct);
+        var receivePacket = ReadResponse(response, buffer);
+        Log.Debug("Received {Bytes} bytes from `{endpoint}`.", response.ReceivedBytes, endpoint);
+        return new Request(requestPacket, receivePacket);
+    }
+
+    private static Packet<ReceivePacketHeader> ReadResponse(SocketReceiveFromResult response, Memory<byte> buffer)
+    {
         var destinationTimestamp = NtpTimestamp.Now;
-        var actualReceived = buffer[..received.ReceivedBytes];
-        Log.Debug("Received {Bytes} bytes from `{endpoint}`.", received.ReceivedBytes, endpoint);
-
-        var nth = 1;
-        var stringBuilder = new StringBuilder();
-        foreach (var b in actualReceived.ToArray())
-        {
-            stringBuilder.Append($"{Convert.ToString(b, toBase: 2).PadLeft(8, '0'),8}");
-            if (nth % 4 == 0)
-            {
-                stringBuilder.AppendLine();
-            }
-            else
-            {
-                stringBuilder.Append(' ');
-            }
-
-            nth++;
-        }
-
-        Log.Debug("Server raw response:\n{Response}", stringBuilder);
-
-        var receivePacket = ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
-        return new Request(request, receivePacket);
+        var actualReceived = buffer[..response.ReceivedBytes];
+        return ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
     }
 
     private async Task InitializeClientAsync(CancellationToken ct = default)
@@ -75,5 +56,12 @@ public sealed class Client
         }
 
         Log.Debug("Resolved {Count} IPs for host: {IpAddresses}", _addresses.Count, _addresses);
+    }
+
+    private IPEndPoint CreateEndpoint()
+    {
+        var endpoint = new IPEndPoint(_addresses.First(), 123);
+        Log.Debug("Using: {Endpoint}", endpoint);
+        return endpoint;
     }
 }
