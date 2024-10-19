@@ -25,8 +25,8 @@ public sealed record TransmitPacketHeader : PacketHeaderBase
     {
     }
 
-    public static TransmitPacketHeader CreateNew()
+    public static Packet<TransmitPacketHeader> CreateNewPacket()
     {
-        return new ();
+        return Packet<TransmitPacketHeader>.CreateNewFromHeader(new TransmitPacketHeader());
     }
 }

@@ -5,9 +5,10 @@ using Fields;
 /// <summary>
 /// The message sent and received from NTP servers.
 /// </summary>
-public sealed record Packet
+public sealed record Packet<THeader>
+    where THeader : PacketHeaderBase
 {
-    public PacketHeaderBase Header { get; }
+    public THeader Header { get; }
 
     public List<ExtensionField> Extensions { get; } = [];
 
@@ -15,26 +16,29 @@ public sealed record Packet
 
     public MessageDigest MessageDigest { get; }
 
-    private Packet(PacketHeaderBase header)
+    /// <summary>
+    /// Time at the client when the reply arrived from the server.
+    /// </summary>
+    public NtpTimestamp? DestinationTimestamp { get; }
+
+    private Packet(THeader header, NtpTimestamp? destinationTimestamp = null)
     {
         Header = header;
         KeyId = KeyId.None;
         MessageDigest = MessageDigest.None;
+        DestinationTimestamp = destinationTimestamp;
     }
 
-    public static Packet CreateNew(TransmitPacketHeader header)
+    public static Packet<THeader> CreateNewFromHeader(THeader header)
     {
         return new (header);
     }
 
-    public static Packet ParseResponse(Memory<byte> response)
+    public static Packet<THeader> CreateNewFromHeaderWithDestinationTimestamp(
+        THeader header,
+        NtpTimestamp destinationTimestamp)
     {
-        if (response.Length < 48)
-        {
-            throw new ArgumentException("Response must be at least 48 bytes.");
-        }
-
-        return new (ReceivePacketHeader.Parse(response[..48]));
+        return new (header, destinationTimestamp);
     }
 
     public byte[] Encode() => Header.Encode(); // TODO: handle KeyID and digest, if necessary

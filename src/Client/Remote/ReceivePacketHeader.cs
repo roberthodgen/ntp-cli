@@ -38,7 +38,7 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
     {
     }
 
-    public static ReceivePacketHeader Parse(Memory<byte> response)
+    public static Packet<ReceivePacketHeader> Parse(Memory<byte> response, NtpTimestamp destinationTimestamp)
     {
         if (response.Length != 48)
         {
@@ -56,19 +56,21 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
         var receiveTimestamp = ReceiveTimestamp.Parse(response[32..40]);
         var transmitTimestamp = TransmitTimestamp.Parse(response[40..48]);
 
-        return new (
-            LeapIndicator.NoWarning, // TODO
-            VersionNumber.Four, // TODO
-            Mode.Server, // TODO
-            Stratum.UnspecifiedOrInvalid, // TODO
-            Poll.MaximumRecommended, // TODO
-            Precision.Microsecond, // TODO
-            rootDelay,
-            rootDispersion,
-            referenceId,
-            referenceTimestamp,
-            originTimestamp,
-            receiveTimestamp,
-            transmitTimestamp);
+        return Packet<ReceivePacketHeader>.CreateNewFromHeaderWithDestinationTimestamp(
+            new ReceivePacketHeader(
+                LeapIndicator.NoWarning, // TODO
+                VersionNumber.Four, // TODO
+                Mode.Server, // TODO
+                Stratum.UnspecifiedOrInvalid, // TODO
+                Poll.MaximumRecommended, // TODO
+                Precision.Microsecond, // TODO
+                rootDelay,
+                rootDispersion,
+                referenceId,
+                referenceTimestamp,
+                originTimestamp,
+                receiveTimestamp,
+                transmitTimestamp),
+            destinationTimestamp);
     }
 }

@@ -2,22 +2,77 @@
 
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using Remote;
+using Remote.Fields;
+using Serilog;
 
-public class Client
+public sealed class Client
 {
     private const string DefaultServer = "pool.ntp.org";
 
-    private readonly UdpClient _client = new();
-    private readonly DnsEndPoint _endpoint;
+    private readonly string _host;
+    private readonly List<IPAddress> _addresses = [];
 
     public Client(string server = DefaultServer)
     {
-        _endpoint = new DnsEndPoint(server, 123);
+        _host = server;
     }
 
-    public async Task ConnectAsync(CancellationToken ct = default)
+    public async Task<Packet<ReceivePacketHeader>> ConnectAsync(CancellationToken ct = default)
     {
-        // await _client.Client.SendToAsync(_endpoint);
-        // await _client.Client.ReceiveFromAsync(_endpoint);
+        await InitializeClientAsync(ct);
+        var endpoint = new IPEndPoint(_addresses.First(), 123);
+        Log.Debug("Using: {Endpoint}", endpoint);
+        var client = new UdpClient();
+
+        var request = TransmitPacketHeader.CreateNewPacket();
+        var sent = await client.Client.SendToAsync(request.Encode(), SocketFlags.None, endpoint, ct);
+        Log.Debug("Sent {Bytes} bytes to `{endpoint}`.", sent, endpoint);
+
+        // TODO receive next
+        Memory<byte> buffer = new byte[48];
+        var received = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, endpoint, ct);
+        var destinationTimestamp = NtpTimestamp.Now;
+        var actualReceived = buffer[..received.ReceivedBytes];
+        Log.Debug("Received {Bytes} bytes from `{endpoint}`.", received.ReceivedBytes, endpoint);
+
+        var nth = 1;
+        var stringBuilder = new StringBuilder();
+        foreach (var b in actualReceived.ToArray())
+        {
+            stringBuilder.Append($"{Convert.ToString(b, toBase: 2).PadLeft(8, '0'),8}");
+            if (nth % 4 == 0)
+            {
+                stringBuilder.AppendLine();
+            }
+            else
+            {
+                stringBuilder.Append(' ');
+            }
+
+            nth++;
+        }
+
+        Log.Debug("Server raw response:\n{Response}", stringBuilder);
+
+        return ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
+    }
+
+    private async Task InitializeClientAsync(CancellationToken ct = default)
+    {
+        if (_addresses.Any())
+        {
+            return;
+        }
+
+        Log.Information("Using host: {defaultServer}", _host);
+        _addresses.AddRange(await Dns.GetHostAddressesAsync("pool.ntp.org", ct));
+        if (_addresses.Count == 0)
+        {
+            throw new ApplicationException("Could not resolve any IP addresses.");
+        }
+
+        Log.Debug("Resolved {Count} IPs for host: {IpAddresses}", _addresses.Count, _addresses);
     }
 }
