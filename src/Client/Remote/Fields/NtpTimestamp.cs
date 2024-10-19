@@ -14,7 +14,7 @@ namespace RobertHodgen.Ntp.Client.Remote.Fields;
 /// </summary>
 public sealed record NtpTimestamp : EncodableBase
 {
-    private const long UnixEpochSecondFromEra0 = 2208988800L;
+    private const uint UnixEpochSecondFromEra0 = 2208988800;
 
     public static NtpTimestamp Zero => new (0, 0);
 
@@ -40,7 +40,7 @@ public sealed record NtpTimestamp : EncodableBase
         var diffFromEpoch = (time - DateTime.UnixEpoch);
         var seconds = Convert.ToUInt32(Math.Floor(diffFromEpoch.TotalSeconds));
         var fraction = Convert.ToUInt32((diffFromEpoch.TotalSeconds - seconds) * uint.MaxValue);
-        return new (seconds, fraction);
+        return new (seconds + UnixEpochSecondFromEra0, fraction);
     }
 
     public static NtpTimestamp Parse(Memory<byte> memory)

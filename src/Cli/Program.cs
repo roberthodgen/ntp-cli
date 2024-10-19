@@ -29,22 +29,25 @@ Log.Information("Network Time Protocol (NTP) Command Line Interface (CLI)");
 
 levelSwitch.MinimumLevel = LogEventLevel.Verbose; // TODO add option from CLI
 
-var response = await new Client().ConnectAsync(cts.Token);
-var headers = response.Header;
+var request = await new Client().ConnectAsync(cts.Token);
+var responseHeaders = request.ServerResponse.Header;
 
 Log.Debug("Server decoded response:");
-Log.Debug("  Leap indicator: {LeapIndicator}", headers.LeapIndicator);
-Log.Debug("  Version number: {VersionNumber}", headers.VersionNumber);
-Log.Debug("  Mode: {Mode}", headers.Mode);
-Log.Debug("  Stratum: {Stratum}", headers.Stratum);
-Log.Debug("  Poll: {Poll}", headers.Poll);
-Log.Debug("  Precision: {Precision}", headers.Precision);
-Log.Debug("  Root delay: {RootDelay}", headers.RootDelay);
-Log.Debug("  Root dispersion: {RootDispersion}", headers.RootDispersion);
-Log.Debug("  Reference ID: {ReferenceId}", headers.ReferenceId);
-Log.Debug("  Reference timestamp: {ReferenceTimestamp}", headers.ReferenceTimestamp);
-Log.Debug("  Origin timestamp: {OriginTimestamp}", headers.OriginTimestamp);
-Log.Debug("  Receive timestamp: {ReceiveTimestamp}", headers.ReceiveTimestamp);
-Log.Debug("  Transmit timestamp: {TransmitTimestamp}", headers.TransmitTimestamp);
+Log.Debug("  Leap indicator: {LeapIndicator}", responseHeaders.LeapIndicator);
+Log.Debug("  Version number: {VersionNumber}", responseHeaders.VersionNumber);
+Log.Debug("  Mode: {Mode}", responseHeaders.Mode);
+Log.Debug("  Stratum: {Stratum}", responseHeaders.Stratum);
+Log.Debug("  Poll: {Poll}", responseHeaders.Poll);
+Log.Debug("  Precision: {Precision}", responseHeaders.Precision);
+Log.Debug("  Root delay: {RootDelay}", responseHeaders.RootDelay);
+Log.Debug("  Root dispersion: {RootDispersion}", responseHeaders.RootDispersion);
+Log.Debug("  Reference ID: {ReferenceId}", responseHeaders.ReferenceId);
+Log.Debug("  Reference timestamp: {ReferenceTimestamp}", responseHeaders.ReferenceTimestamp);
+Log.Debug("  Origin timestamp: {OriginTimestamp}", responseHeaders.OriginTimestamp);
+Log.Debug("  Receive timestamp: {ReceiveTimestamp}", responseHeaders.ReceiveTimestamp);
+Log.Debug("  Transmit timestamp: {TransmitTimestamp}", responseHeaders.TransmitTimestamp);
 
-Log.Debug("Local receive timestamp: {receiveTimestamp:O}", response.DestinationTimestamp);
+Log.Debug("Local receive timestamp: {receiveTimestamp:O}", request.ServerResponse.DestinationTimestamp);
+
+Log.Information("Theta: {Theta:c}", request.Theta());
+Log.Information("Delta: {Delta:c}", request.Delta());

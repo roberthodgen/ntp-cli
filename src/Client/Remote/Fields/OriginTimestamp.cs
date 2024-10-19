@@ -5,7 +5,7 @@ namespace RobertHodgen.Ntp.Client.Remote.Fields;
 /// </summary>
 public sealed record OriginTimestamp : EncodableBase
 {
-    public static OriginTimestamp Now => new (NtpTimestamp.FromDateTime(DateTime.UtcNow));
+    public static OriginTimestamp Now => new (NtpTimestamp.Now);
 
     public NtpTimestamp Value { get; }
 

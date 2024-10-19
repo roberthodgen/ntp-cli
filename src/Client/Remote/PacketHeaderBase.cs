@@ -72,12 +72,24 @@ public abstract record PacketHeaderBase
 
     public ReferenceId ReferenceId { get; }
 
+    /// <summary>
+    /// Time when the system clock was last set or corrected, in NTP timestamp format.
+    /// </summary>
     public ReferenceTimestamp ReferenceTimestamp { get; }
 
+    /// <summary>
+    /// Time at the client when the request departed for the server, in NTP timestamp format
+    /// </summary>
     public OriginTimestamp OriginTimestamp { get; }
 
+    /// <summary>
+    /// Time at the server when the request arrived from the client, in NTP timestamp format.
+    /// </summary>
     public ReceiveTimestamp ReceiveTimestamp { get; }
 
+    /// <summary>
+    /// Time at the server when the response left for the client, in NTP timestamp format.
+    /// </summary>
     public TransmitTimestamp TransmitTimestamp { get; }
 
     public bool KissODeath => Stratum == Stratum.UnspecifiedOrInvalid;

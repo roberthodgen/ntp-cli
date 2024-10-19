@@ -19,7 +19,7 @@ public sealed class Client
         _host = server;
     }
 
-    public async Task<Packet<ReceivePacketHeader>> ConnectAsync(CancellationToken ct = default)
+    public async Task<Request> ConnectAsync(CancellationToken ct = default)
     {
         await InitializeClientAsync(ct);
         var endpoint = new IPEndPoint(_addresses.First(), 123);
@@ -56,7 +56,8 @@ public sealed class Client
 
         Log.Debug("Server raw response:\n{Response}", stringBuilder);
 
-        return ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
+        var receivePacket = ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
+        return new Request(request, receivePacket);
     }
 
     private async Task InitializeClientAsync(CancellationToken ct = default)
