@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using RobertHodgen.Ntp.Client;
+using RobertHodgen.Ntp.Client.Remote;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;

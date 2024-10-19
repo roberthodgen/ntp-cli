@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// Mode (mode): 3-bit integer representing the mode, with values defined as:

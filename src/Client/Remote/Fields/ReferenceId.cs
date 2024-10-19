@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 using System.Net;
 using System.Net.Sockets;

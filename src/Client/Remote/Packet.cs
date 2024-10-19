@@ -1,4 +1,6 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote;
+
+using Fields;
 
 /// <summary>
 /// The message sent and received from NTP servers.

@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// Origin Timestamp (org): Time at the client when the request departed for the server, in NTP timestamp format.

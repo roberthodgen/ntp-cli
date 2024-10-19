@@ -46,5 +46,5 @@ namespace RobertHodgen.Ntp.Client;
 /// </summary>
 public sealed record KissCodes
 {
-    public string Value { get; }
+    public string Value { get; } // TODO this needs to be merged into the reference ID type
 }

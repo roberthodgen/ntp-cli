@@ -1,4 +1,6 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote;
+
+using Fields;
 
 /// <summary>
 /// Transmit Packet Header (<c>x.</c>).

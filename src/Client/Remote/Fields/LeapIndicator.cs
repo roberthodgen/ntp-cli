@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last

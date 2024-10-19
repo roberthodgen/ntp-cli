@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// Reference Timestamp: Time when the system clock was last set or corrected, in NTP timestamp format.

@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// Stratum (stratum): 8-bit integer representing the stratum, with values defined:
@@ -37,10 +37,10 @@ public sealed record Stratum : EncodableBase
 
     public override string ToString() => Value switch
     {
-        0 => "unspecified or invalid",
-        1 => "primary server (e.g., equipped with a GPS receiver)",
-        > 2 and < 16 => "secondary server (via NTP)",
-        16 => "unsynchronized",
-        _ => "reserved",
+        0 => "Unspecified or Invalid",
+        1 => "Primary Server (e.g., equipped with a GPS receiver)",
+        > 2 and < 16 => "Secondary Server (via NTP)",
+        16 => "Unsynchronized",
+        _ => "Reserved",
     };
 }

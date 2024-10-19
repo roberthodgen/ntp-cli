@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// 8-bit signed integer representing the maximum interval between successive messages, in log2 seconds. Suggested

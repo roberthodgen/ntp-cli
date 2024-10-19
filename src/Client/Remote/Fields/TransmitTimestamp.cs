@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// Transmit Timestamp (xmt): Time at the server when the response left for the client, in NTP timestamp format.

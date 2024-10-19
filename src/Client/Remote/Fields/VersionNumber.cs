@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// Version Number (version): 3-bit integer representing the NTP version number, currently 4.
@@ -23,8 +23,5 @@ public sealed record VersionNumber : EncodableBase
 
     public override byte[] Encode() => [Value];
 
-    public override string ToString()
-    {
-        return $"v{Value}";
-    }
+    public override string ToString() => $"v{Value}";
 }

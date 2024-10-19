@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// 8-bit signed integer representing the precision of the system clock, in log2 seconds.  For instance, a value of -18
@@ -18,7 +18,7 @@ public sealed record Precision : EncodableBase
         Value = value;
     }
 
-    public override byte[] Encode() => [(byte)Value]; // also consider unchecked((byte)Value)
+    public override byte[] Encode() => [(byte)Value];
 
     public override string ToString() => (Value) < 0 ? $"{1.0 / (1L << -(Value)):e2}" : $"{1L << (Value):e2}";
 }

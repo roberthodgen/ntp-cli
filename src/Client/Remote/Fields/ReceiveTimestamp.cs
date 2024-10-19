@@ -1,4 +1,4 @@
-namespace RobertHodgen.Ntp.Client;
+namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
 /// Receive Timestamp (rec): Time at the server when the request arrived from the client, in NTP timestamp format.

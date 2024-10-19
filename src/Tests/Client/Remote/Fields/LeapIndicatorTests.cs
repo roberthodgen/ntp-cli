@@ -1,4 +1,6 @@
-namespace Roberthodgen.Ntp.Client.Tests;
+namespace Roberthodgen.Ntp.Client.Tests.Remote.Fields;
+
+using RobertHodgen.Ntp.Client.Remote.Fields;
 
 public class LeapIndicatorTests
 {
