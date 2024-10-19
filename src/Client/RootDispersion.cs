@@ -16,5 +16,9 @@ public sealed record RootDispersion : EncodableBase
         Value = value;
     }
 
+    public static RootDispersion Parse(Memory<byte> memory) => new (NtpShort.Parse(memory));
+
     public override byte[] Encode() => Value.Encode();
+
+    public override string ToString() => Value.ToString();
 }

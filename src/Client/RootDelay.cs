@@ -16,5 +16,9 @@ public sealed record RootDelay : EncodableBase
         Value = value;
     }
 
+    public static RootDelay Parse(Memory<byte> memory) => new (NtpShort.Parse(memory));
+
     public override byte[] Encode() => Value.Encode();
+
+    public override string ToString() => Value.ToString();
 }

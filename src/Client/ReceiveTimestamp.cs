@@ -16,5 +16,9 @@ public sealed record ReceiveTimestamp : EncodableBase
         Value = value;
     }
 
+    public static ReceiveTimestamp Parse(Memory<byte> memory) => new (NtpTimestamp.Parse(memory));
+
     public override byte[] Encode() => Value.Encode();
+
+    public override string ToString() => Value.ToString();
 }

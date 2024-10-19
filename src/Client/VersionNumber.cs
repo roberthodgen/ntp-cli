@@ -22,4 +22,9 @@ public sealed record VersionNumber : EncodableBase
     public static VersionNumber Reconstitute(byte version) => new (version);
 
     public override byte[] Encode() => [Value];
+
+    public override string ToString()
+    {
+        return $"v{Value}";
+    }
 }

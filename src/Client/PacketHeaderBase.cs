@@ -52,33 +52,63 @@ namespace RobertHodgen.Ntp.Client;
 /// </summary>
 public abstract record PacketHeaderBase
 {
-    public LeapIndicator LeapIndicator { get; protected init; }
+    public LeapIndicator LeapIndicator { get; }
 
-    public VersionNumber VersionNumber { get; protected init; }
+    public VersionNumber VersionNumber { get; }
 
-    public Mode Mode { get; protected init; }
+    public Mode Mode { get; }
 
-    public Stratum Stratum { get; protected init; }
+    public Stratum Stratum { get; }
 
-    public Poll Poll { get; protected init; }
+    public Poll Poll { get; }
 
-    public Precision Precision { get; protected init; }
+    public Precision Precision { get; }
 
-    public RootDelay RootDelay { get; protected init; }
+    public RootDelay RootDelay { get; }
 
-    public RootDispersion RootDispersion { get; protected init; }
+    public RootDispersion RootDispersion { get; }
 
-    public ReferenceId ReferenceId { get; protected init; }
+    public ReferenceId ReferenceId { get; }
 
-    public ReferenceTimestamp ReferenceTimestamp { get; protected init; }
+    public ReferenceTimestamp ReferenceTimestamp { get; }
 
-    public OriginTimestamp OriginTimestamp { get; protected init; }
+    public OriginTimestamp OriginTimestamp { get; }
 
-    public ReceiveTimestamp ReceiveTimestamp { get; protected init; }
+    public ReceiveTimestamp ReceiveTimestamp { get; }
 
-    public TransmitTimestamp TransmitTimestamp { get; protected init; }
+    public TransmitTimestamp TransmitTimestamp { get; }
 
     public bool KissODeath => Stratum == Stratum.UnspecifiedOrInvalid;
+
+    protected PacketHeaderBase(
+        LeapIndicator leapIndicator,
+        VersionNumber versionNumber,
+        Mode mode,
+        Stratum stratum,
+        Poll poll,
+        Precision precision,
+        RootDelay rootDelay,
+        RootDispersion rootDispersion,
+        ReferenceId referenceId,
+        ReferenceTimestamp referenceTimestamp,
+        OriginTimestamp originTimestamp,
+        ReceiveTimestamp receiveTimestamp,
+        TransmitTimestamp transmitTimestamp)
+    {
+        LeapIndicator = leapIndicator;
+        VersionNumber = versionNumber;
+        Mode = mode;
+        Stratum = stratum;
+        Poll = poll;
+        Precision = precision;
+        RootDelay = rootDelay;
+        RootDispersion = rootDispersion;
+        ReferenceId = referenceId;
+        ReferenceTimestamp = referenceTimestamp;
+        OriginTimestamp = originTimestamp;
+        ReceiveTimestamp = receiveTimestamp;
+        TransmitTimestamp = transmitTimestamp;
+    }
 
     public byte[] Encode()
     {

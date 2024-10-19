@@ -25,5 +25,15 @@ public sealed record Packet
         return new (header);
     }
 
+    public static Packet ParseResponse(Memory<byte> response)
+    {
+        if (response.Length < 48)
+        {
+            throw new ArgumentException("Response must be at least 48 bytes.");
+        }
+
+        return new (ReceivePacketHeader.Parse(response[..48]));
+    }
+
     public byte[] Encode() => Header.Encode(); // TODO: handle KeyID and digest, if necessary
 }

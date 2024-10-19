@@ -30,9 +30,31 @@ public sealed record NtpShort : EncodableBase
 
     public static NtpShort FromTimeSpan(TimeSpan timeSpan)
     {
-        var seconds = Convert.ToUInt16(timeSpan.TotalSeconds);
+        var seconds = Convert.ToUInt16(Math.Floor(timeSpan.TotalSeconds));
         var fraction = Convert.ToUInt16((timeSpan.TotalSeconds - seconds) * ushort.MaxValue);
         return new (seconds, fraction);
+    }
+
+    public static NtpShort Parse(Memory<byte> memory)
+    {
+        if (memory.Length != 4)
+        {
+            throw new ArgumentException("NTP short format must be 4 bytes long.", nameof(memory));
+        }
+
+        var seconds = new Span<byte>(memory[..2].ToArray());
+        if (BitConverter.IsLittleEndian)
+        {
+            seconds.Reverse();
+        }
+
+        var precision = new Span<byte>(memory[2..4].ToArray());
+        if (BitConverter.IsLittleEndian)
+        {
+            precision.Reverse();
+        }
+
+        return new (BitConverter.ToUInt16(seconds), BitConverter.ToUInt16(precision));
     }
 
     public override byte[] Encode()
@@ -56,4 +78,6 @@ public sealed record NtpShort : EncodableBase
     {
         return new TimeSpan((Seconds * TicksPerSecond) + (Fraction / ushort.MaxValue * TicksPerSecond));
     }
+
+    public override string ToString() => ToTimeSpan().ToString("G");
 }

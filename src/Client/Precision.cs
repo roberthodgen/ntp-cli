@@ -19,4 +19,6 @@ public sealed record Precision : EncodableBase
     }
 
     public override byte[] Encode() => [(byte)Value]; // also consider unchecked((byte)Value)
+
+    public override string ToString() => (Value) < 0 ? $"{1.0 / (1L << -(Value)):e2}" : $"{1L << (Value):e2}";
 }

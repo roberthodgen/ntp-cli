@@ -45,4 +45,17 @@ public sealed record Mode : EncodableBase
     }
 
     public override byte[] Encode() => [Value];
+
+    public override string ToString() => Value switch
+    {
+        0 => "reserved",
+        1 => "symmetric active",
+        2 => "symmetric passive",
+        3 => "client",
+        4 => "server",
+        5 => "broadcast",
+        6 => "NTP control message",
+        7 => "reserved for private use",
+        _ => throw new ApplicationException("Unknown mode."),
+    };
 }

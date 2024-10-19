@@ -16,5 +16,9 @@ public sealed record OriginTimestamp : EncodableBase
         Value = value;
     }
 
+    public static OriginTimestamp Parse(Memory<byte> memory) => new (NtpTimestamp.Parse(memory));
+
     public override byte[] Encode() => Value.Encode();
+
+    public override string ToString() => Value.ToString();
 }

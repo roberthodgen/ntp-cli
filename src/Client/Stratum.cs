@@ -34,4 +34,13 @@ public sealed record Stratum : EncodableBase
     public static Stratum Reconstitute(byte stratum) => new (stratum);
 
     public override byte[] Encode() => [Value];
+
+    public override string ToString() => Value switch
+    {
+        0 => "unspecified or invalid",
+        1 => "primary server (e.g., equipped with a GPS receiver)",
+        > 2 and < 16 => "secondary server (via NTP)",
+        16 => "unsynchronized",
+        _ => "reserved",
+    };
 }

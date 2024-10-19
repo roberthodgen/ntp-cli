@@ -20,4 +20,6 @@ public sealed record Poll : EncodableBase
     }
 
     public override byte[] Encode() => [(byte)Value];
+
+    public override string ToString() => (Value) < 0 ? $"{1.0 / (1L << -(Value))}" : $"{1L << (Value)}";
 }

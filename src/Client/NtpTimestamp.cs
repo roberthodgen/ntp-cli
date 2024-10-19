@@ -33,9 +33,31 @@ public sealed record NtpTimestamp : EncodableBase
     public static NtpTimestamp FromDateTime(DateTime time)
     {
         var diffFromEpoch = (time - DateTime.UnixEpoch);
-        var seconds = Convert.ToUInt32(diffFromEpoch.TotalSeconds);
+        var seconds = Convert.ToUInt32(Math.Floor(diffFromEpoch.TotalSeconds));
         var fraction = Convert.ToUInt32((diffFromEpoch.TotalSeconds - seconds) * uint.MaxValue);
         return new (seconds, fraction);
+    }
+
+    public static NtpTimestamp Parse(Memory<byte> memory)
+    {
+        if (memory.Length != 8)
+        {
+            throw new ArgumentException("NTP Timestamp format must be 8 bytes long.", nameof(memory));
+        }
+
+        var seconds = new Span<byte>(memory[..4].ToArray());
+        if (BitConverter.IsLittleEndian)
+        {
+            seconds.Reverse();
+        }
+
+        var precision = new Span<byte>(memory[4..8].ToArray());
+        if (BitConverter.IsLittleEndian)
+        {
+            precision.Reverse();
+        }
+
+        return new (BitConverter.ToUInt32(seconds), BitConverter.ToUInt32(precision));
     }
 
     public override byte[] Encode()
@@ -45,7 +67,7 @@ public sealed record NtpTimestamp : EncodableBase
         {
             Array.Reverse(seconds);
         }
-        
+
         var fraction = BitConverter.GetBytes(Fraction);
         if (BitConverter.IsLittleEndian)
         {
@@ -57,4 +79,6 @@ public sealed record NtpTimestamp : EncodableBase
 
     public DateTime ToDateTime() => DateTime.UnixEpoch
         .AddSeconds(Seconds - UnixEpochSecondFromEra0 + (Fraction / (double)uint.MaxValue));
+
+    public override string ToString() => ToDateTime().ToString("O");
 }

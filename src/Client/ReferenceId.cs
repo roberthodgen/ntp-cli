@@ -76,6 +76,22 @@ public sealed record ReferenceId : EncodableBase
 
     public static ReferenceId Reconstitute(string referenceId) => new (referenceId);
 
+    public static ReferenceId Parse(Memory<byte> memory)
+    {
+        if (memory.Length != 4)
+        {
+            throw new ArgumentException("Reference ID must be exactly 4 characters.", nameof(memory));
+        }
+
+        var referenceId = new Span<byte>(memory.ToArray());
+        if (BitConverter.IsLittleEndian)
+        {
+            referenceId.Reverse();
+        }
+
+        return new (Encoding.ASCII.GetString(referenceId));
+    }
+
     public override byte[] Encode()
     {
         var bytes = Encoding.ASCII.GetBytes(Value);
@@ -86,4 +102,6 @@ public sealed record ReferenceId : EncodableBase
 
         return bytes;
     }
+
+    public override string ToString() => Value;
 }
