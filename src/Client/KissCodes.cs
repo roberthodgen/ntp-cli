@@ -46,5 +46,17 @@ namespace RobertHodgen.Ntp.Client;
 /// </summary>
 public sealed record KissCodes
 {
+    private KissCodes(string value)
+    {
+        if (value.Length != 4)
+        {
+            throw new ArgumentException("Kiss code must be exactly 4 characters.", nameof(value));
+        }
+
+        Value = value;
+    }
+
     public string Value { get; } // TODO this needs to be merged into the reference ID type
+
+    public static KissCodes CreateNew(string value) => new (value);
 }

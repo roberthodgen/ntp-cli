@@ -7,13 +7,14 @@
 
 ## Build
 
-1. Ensure .NET 8.0 SDK is installed and available
-2. Run `make ntpc` to output the Windows, Mac OS, and Linux binaries.
+1. Ensure .NET 10 SDK is installed and available
+2. Run `make ntpc` to output the Windows, macOS, and Linux binaries.
 
-Depending upon your architecture use one of:
-- `ntpc_win-x64.exe` for Windows
-- `ntpc_osx-x64` for Mac OS
-- `ntpc_linux-x64` for Linux
+Depending upon your platform and architecture use one of:
+- `ntpc_win-x64.exe` for Windows x64
+- `ntpc_linux-x64` for Linux x64
+- `ntpc_macos-x64` for macOS x64
+- `ntpc_macos-arm64` for macOS arm64
 
 ## Usage
 

@@ -16,6 +16,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{73
 		.gitignore = .gitignore
 		README.md = README.md
 		Makefile = Makefile
+		AGENTS.md = AGENTS.md
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{34BBE645-B633-44FA-8654-5F7EC0B7CB1F}"
+
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\pr.yml = .github\workflows\pr.yml
 	EndProjectSection
 EndProject
 Global
@@ -42,5 +50,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CA1A977B-96FE-48AE-90D2-6EF776B665D1} = {F19A6B98-D444-44A8-9927-B38E0D7187DC}
+		{34BBE645-B633-44FA-8654-5F7EC0B7CB1F} = {73243B23-7C5B-4A92-902E-B4B01B6CA1FB}
 	EndGlobalSection
 EndGlobal

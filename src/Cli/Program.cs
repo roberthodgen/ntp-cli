@@ -29,20 +29,24 @@ Console.CancelKeyPress += (_, e) =>
 Log.Information("Network Time Protocol (NTP) Command Line Interface (CLI)");
 
 var rootCommand = new RootCommand("NTP CLI");
-var verboseOption = new Option<bool>("--verbose", description: "Enable verbose logging");
+var verboseOption = new Option<bool>("--verbose")
+{
+    Description = "Enable verbose logging"
+};
 var checkCommand = new Command("check", "Check an NTP server for a time offset");
 rootCommand.Add(checkCommand);
-checkCommand.AddOption(verboseOption);
+checkCommand.Add(verboseOption);
 
-checkCommand.SetHandler(
-    async verbose =>
+checkCommand.SetAction(
+    async (parseResult, cancellationToken) =>
     {
+        var verbose = parseResult.GetValue(verboseOption);
         if (verbose)
         {
-            levelSwitch.MinimumLevel = LogEventLevel.Verbose; // TODO add option from CLI
+            levelSwitch.MinimumLevel = LogEventLevel.Verbose;
         }
 
-        var request = await new Client().ConnectAsync(cts.Token);
+        var request = await new Client().ConnectAsync(cancellationToken);
         
         Log.Debug("Server response headers:");
         request.ServerResponse.Header.LogDebugData();
@@ -52,6 +56,6 @@ checkCommand.SetHandler(
         Log.Information($"Theta: {request.Theta():c} (absolute time difference between client and server clocks)");
         Log.Information($"Delta: {request.Delta():c} (round-trip delay)");
 
-    }, verboseOption);
+    });
 
-await rootCommand.InvokeAsync(args);
+return await rootCommand.Parse(args).InvokeAsync(cancellationToken: cts.Token);
