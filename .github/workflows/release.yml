@@ -15,12 +15,10 @@ jobs:
     environment: release
 
     steps:
-      - name: Checkout
+      - name: ➡️ Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup .NET
+      - name: ⚙️ Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
@@ -36,20 +34,17 @@ jobs:
           fi
           printf 'version=%s\n' "$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Restore
+      - name: 📦 NuGet Restore
         run: dotnet restore ntp-cli.sln
 
-      - name: Build
-        run: dotnet build ntp-cli.sln -c Release --no-restore /p:ContinuousIntegrationBuild=true
-
       - name: Test
-        run: dotnet test ntp-cli.sln -c Release --no-build
+        run: dotnet test ntp-cli.sln -c Release
 
       - name: Pack client package
         run: dotnet pack src/Client/RobertHodgen.Ntp.Client.csproj -c Release -o artifacts --no-build /p:PackageVersion=${{ steps.version.outputs.version }} /p:ContinuousIntegrationBuild=true
 
       - name: Build CLI artifacts
-        run: make ntpc
+        run: make
 
       - name: Stage CLI artifacts
         run: cp ntpc_win-x64.exe ntpc_linux-x64 ntpc_macos-x64 ntpc_macos-arm64 artifacts/

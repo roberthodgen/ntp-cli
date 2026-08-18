@@ -18,12 +18,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{73
 		Makefile = Makefile
 		AGENTS.md = AGENTS.md
 		Directory.Build.props = Directory.Build.props
+		.github\release.yml = .github\release.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{34BBE645-B633-44FA-8654-5F7EC0B7CB1F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{34BBE645-B633-44FA-8654-5F7EC0B7CB1F}"
 
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\pr.yml = .github\workflows\pr.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
 Global
