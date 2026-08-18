@@ -8,13 +8,13 @@
 ## Build
 
 1. Ensure .NET 10 SDK is installed and available
-2. Run `make ntpc` to output the Windows, macOS, and Linux binaries.
+2. Run `make ntpc` to output the Windows, macOS, and Linux binaries under `build/`.
 
 Depending upon your platform and architecture use one of:
-- `ntpc_win-x64.exe` for Windows x64
-- `ntpc_linux-x64` for Linux x64
-- `ntpc_macos-x64` for macOS x64
-- `ntpc_macos-arm64` for macOS arm64
+- `build/ntpc_win-x64.exe` for Windows x64
+- `build/ntpc_linux-x64` for Linux x64
+- `build/ntpc_macos-x64` for macOS x64
+- `build/ntpc_macos-arm64` for macOS arm64
 
 ## NuGet Package
 
@@ -26,7 +26,7 @@ Build the package locally:
 make package VERSION=0.1.0-local
 ```
 
-The package and symbols package are written to `artifacts/`.
+The package and symbols package are written to `build/`.
 
 See [docs/releasing.md](docs/releasing.md) for the release process.
 

@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{73
 		AGENTS.md = AGENTS.md
 		Directory.Build.props = Directory.Build.props
 		.github\release.yml = .github\release.yml
+		package.json = package.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{34BBE645-B633-44FA-8654-5F7EC0B7CB1F}"

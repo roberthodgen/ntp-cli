@@ -4,9 +4,9 @@
 
 **Goal:** Package and publish only `RobertHodgen.Ntp.Client` to NuGet with tag-based versioning, local Makefile output, GitHub Actions validation, GitHub Releases, and NuGet trusted publishing.
 
-**Architecture:** Package metadata lives in the client project. Local builds use `make package`; CI validates restore/build/test/pack without publishing; tag-triggered releases derive the package version from the Git tag, publish via NuGet trusted publishing, build CLI binaries, create a GitHub Release, and attach all artifacts.
+**Architecture:** Package metadata lives in the client project. Local builds use `make package`; CI validates restore/build/test/pack without publishing; tag-triggered releases let the `Makefile` derive the package version from the Git tag, publish via NuGet trusted publishing, build CLI binaries, create a GitHub Release with the `gh` CLI, and attach all artifacts.
 
-**Tech Stack:** .NET 10 SDK, MSBuild packing, NuGet trusted publishing/OIDC, `NuGet/login@v1`, GitHub Actions, GitHub generated release notes, Makefile.
+**Tech Stack:** .NET 10 SDK, MSBuild packing, NuGet trusted publishing/OIDC, `NuGet/login@v1`, GitHub Actions, GitHub CLI, GitHub generated release notes, Makefile.
 
 **Spec:** Chat-reviewed plan from 2026-08-18.
 
@@ -15,9 +15,9 @@
 - Publish only `src/Client/RobertHodgen.Ntp.Client.csproj` to NuGet.
 - Do not make the CLI project packable for NuGet.
 - Package version comes from tags shaped like `v1.2.3` or `v1.2.3-preview.1`.
-- Build artifacts are written under `artifacts/`.
+- Build artifacts are written under `build/`.
 - GitHub publishing uses NuGet trusted publishing with OIDC, not a long-lived NuGet API key.
-- GitHub Release creation happens from the same tag and attaches all built artifacts.
+- GitHub Release creation happens from the same tag with the `gh` CLI and attaches all built artifacts.
 - Release notes use GitHub's release notes configuration template.
 - Follow Microsoft package authoring guidance as much as practical.
 
@@ -48,12 +48,14 @@
 
 **Interfaces:**
 - Consumes: `src/Client/RobertHodgen.Ntp.Client.csproj`.
-- Produces: `make package` and `make package VERSION=<version>` commands that write NuGet artifacts to `artifacts/`.
+- Produces: `make package` and `make package VERSION=<version>` commands that write NuGet artifacts to `build/`.
 
 - [x] Add project variables for the client and CLI projects.
 - [x] Keep `make ntpc` for CLI binaries and make it target the CLI project explicitly.
 - [x] Add `make package` for client package output.
-- [x] Update `make clean` to remove `artifacts/`.
+- [x] Update `make clean` to remove generated package output.
+- [x] Move all release outputs to `build/`.
+- [x] Derive package versions from the current exact `v<semver>` tag when `VERSION` is omitted.
 
 ### Task 3: GitHub CI
 
@@ -75,17 +77,20 @@
 - Create: `.github/release.yml`
 
 **Interfaces:**
-- Consumes: Git tags named `v<semver>`, NuGet trusted publishing policy, GitHub `release` environment, `NUGET_USER` secret.
+- Consumes: Git tags named `v<semver>`, NuGet trusted publishing policy, GitHub `release` environment, NuGet user `roberthodgen`.
 - Produces: published NuGet package, published symbols package, GitHub Release, and attached artifacts.
 
 - [x] Trigger release workflow from tags matching `v*`.
-- [x] Validate SemVer after the leading `v`.
-- [x] Pack only `RobertHodgen.Ntp.Client` with tag-derived `PackageVersion`.
+- [x] Validate SemVer after the leading `v` through the `Makefile`.
+- [x] Pack only `RobertHodgen.Ntp.Client` with `Makefile`-derived `PackageVersion`.
 - [x] Use `NuGet/login@v1` with `id-token: write`.
 - [x] Push `.nupkg` and `.snupkg` to NuGet.
-- [x] Build CLI binaries and stage them under `artifacts/`.
-- [x] Create GitHub Release with generated notes and attach `artifacts/*`.
+- [x] Use `roberthodgen` directly as the NuGet trusted publishing user, without a `NUGET_USER` secret.
+- [x] Build CLI binaries and stage them under `build/`.
+- [x] Create GitHub Release with `gh release create`, generated notes, and attached `build/*` artifacts.
 - [x] Configure generated release note categories.
+
+**NuGet trusted publishing connection:** NuGet.org authorizes the workflow by matching GitHub's OIDC token to a trusted publishing policy. Configure NuGet.org with repository owner `roberthodgen`, repository `ntp-cli`, workflow file `release.yml`, and environment `release`. The workflow keeps `permissions: id-token: write`, calls `NuGet/login@v1`, and passes user `roberthodgen`; `NuGet/login@v1` returns a short-lived API key for the push commands.
 
 ### Task 5: Documentation And Verification
 

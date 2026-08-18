@@ -10,10 +10,12 @@ Create the NuGet package and symbols package locally:
 make package VERSION=0.1.0-local
 ```
 
-Output is written to `artifacts/`:
+Output is written to `build/`:
 
 - `RobertHodgen.Ntp.Client.<version>.nupkg`
 - `RobertHodgen.Ntp.Client.<version>.snupkg`
+
+When `VERSION` is omitted, the `Makefile` derives the package version from the current exact Git tag. For example, `v1.2.3` becomes `1.2.3`. If there is no exact tag, pass `VERSION=<semver>` explicitly.
 
 Build CLI release binaries locally:
 
@@ -44,10 +46,10 @@ git push origin v0.1.0
 The release workflow will:
 
 - Restore, build, and test the solution.
-- Pack `RobertHodgen.Ntp.Client` with the version from the tag.
+- Run `make package ntpc`; the `Makefile` derives the package version from the tag and writes all release artifacts under `build/`.
 - Publish the `.nupkg` and `.snupkg` to NuGet.
 - Build Windows, Linux, and macOS CLI binaries.
-- Create a GitHub Release using generated release notes.
+- Create a GitHub Release with `gh release create` using generated release notes.
 - Attach the NuGet and CLI artifacts to the GitHub Release.
 
 ## NuGet Trusted Publishing Setup
@@ -64,10 +66,12 @@ Go to https://www.nuget.org/account/trustedpublishing and add a policy with thes
 Then create a GitHub environment:
 
 - Repository Settings -> Environments -> New environment: `release`
-- Add environment secret: `NUGET_USER`
-- Set `NUGET_USER` to the NuGet.org username, not an email address.
+
+No NuGet API key or `NUGET_USER` secret is required. The workflow passes `roberthodgen` directly to `NuGet/login@v1`, and NuGet.org authorizes the publish by matching the GitHub OIDC token to the trusted publishing policy.
 
 Optional: add required reviewers to the `release` environment to require manual approval before publishing.
+
+The release workflow must keep `permissions: id-token: write`; without it, `NuGet/login@v1` cannot exchange the GitHub OIDC token for a short-lived NuGet publishing key.
 
 ## Release Notes
 

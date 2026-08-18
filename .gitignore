@@ -1,4 +1,5 @@
 # build files
+build/
 ntpc_win-x64.exe
 ntpc_linux-x64
 ntpc_osx-x64
