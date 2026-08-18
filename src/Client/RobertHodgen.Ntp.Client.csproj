@@ -1,9 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>RobertHodgen.Ntp.Client</PackageId>
+    <Title>RobertHodgen.Ntp.Client</Title>
+    <Authors>Robert Hodgen</Authors>
+    <Description>Network Time Protocol client library for querying server time and calculating clock offset and round-trip delay.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/roberthodgen/ntp-cli</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/roberthodgen/ntp-cli</PackageProjectUrl>
+    <PackageTags>ntp;time;network;client</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
