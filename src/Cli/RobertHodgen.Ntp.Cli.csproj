@@ -8,6 +8,7 @@
     <SelfContained>true</SelfContained>
     <DebugType>embedded</DebugType>
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -16,6 +16,20 @@ Depending upon your platform and architecture use one of:
 - `ntpc_macos-x64` for macOS x64
 - `ntpc_macos-arm64` for macOS arm64
 
+## NuGet Package
+
+Only the `RobertHodgen.Ntp.Client` project is packaged for NuGet.
+
+Build the package locally:
+
+```bash
+make package VERSION=0.1.0-local
+```
+
+The package and symbols package are written to `artifacts/`.
+
+See [docs/releasing.md](docs/releasing.md) for the release process.
+
 ## Usage
 
 Check an NTP server for a time offset:
