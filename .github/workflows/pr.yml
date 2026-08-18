@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore ntp-cli.sln
 
       - name: ✅ Test
-        run: dotnet test ntp-cli.sln --no-build --verbosity normal
+        run: dotnet test ntp-cli.sln
 
       - name: 🛠 Build
         run: make
