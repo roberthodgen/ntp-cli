@@ -1,0 +1,8 @@
+{
+  "name": "ntp-cli",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roberthodgen/ntp-cli.git"
+  }
+}

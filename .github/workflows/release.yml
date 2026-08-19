@@ -1,0 +1,52 @@
+name: 🚀 Release
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - name: ➡️ Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: 📦 NuGet Restore
+        run: dotnet restore ntp-cli.sln
+
+      - name: 🧪 Test
+        run: dotnet test ntp-cli.sln -c Release
+
+      - name: 🏗️ Build
+        run: make package ntpc
+
+      - name: 🔐 NuGet login (OIDC)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: roberthodgen
+
+      - name: 🚀 Push Package to NuGet
+        run: dotnet nuget push build/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: 🧭 Push Symbols to NuGet
+        run: dotnet nuget push build/*.snupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: 📝 Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" build/* --generate-notes --title "$GITHUB_REF_NAME"
