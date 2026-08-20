@@ -46,11 +46,20 @@ git push origin v0.1.0
 The release workflow will:
 
 - Restore, build, and test the solution.
-- Run `make package ntpc`; the `Makefile` derives the package version from the tag and writes all release artifacts under `build/`.
+- Run `make package ntpc-non-macos`; the `Makefile` derives the package version from the tag and writes NuGet, Windows, and Linux release artifacts under `build/`.
+- Build, sign, zip, and notarize macOS CLI binaries on a macOS runner.
 - Publish the `.nupkg` and `.snupkg` to NuGet.
-- Build Windows, Linux, and macOS CLI binaries.
 - Create a GitHub Release with `gh release create` using generated release notes.
 - Attach the NuGet and CLI artifacts to the GitHub Release.
+
+The CLI artifacts attached to each GitHub Release are:
+
+- `ntpc_win-x64.exe`
+- `ntpc_linux-x64`
+- `ntpc_macos-x64.zip`
+- `ntpc_macos-arm64.zip`
+
+See [Apple Signing and Notarization](apple-signing-notarization.md) for the Apple Developer setup, GitHub Secrets, and verification commands required for macOS releases.
 
 ## NuGet Trusted Publishing Setup
 
