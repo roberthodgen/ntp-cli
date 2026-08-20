@@ -29,6 +29,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{0A66B3E2-8718-4AA2-8FF9-503A8C8A6948}"
+	ProjectSection(SolutionItems) = preProject
+		docs\apple-signing-notarization.md = docs\apple-signing-notarization.md
+		docs\releasing.md = docs\releasing.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +60,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{CA1A977B-96FE-48AE-90D2-6EF776B665D1} = {F19A6B98-D444-44A8-9927-B38E0D7187DC}
 		{34BBE645-B633-44FA-8654-5F7EC0B7CB1F} = {73243B23-7C5B-4A92-902E-B4B01B6CA1FB}
+		{0A66B3E2-8718-4AA2-8FF9-503A8C8A6948} = {73243B23-7C5B-4A92-902E-B4B01B6CA1FB}
 	EndGlobalSection
 EndGlobal

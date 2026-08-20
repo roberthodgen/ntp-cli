@@ -1,4 +1,4 @@
-.PHONY: ntpc build/ntpc_win-x64.exe build/ntpc_linux-x64 build/ntpc_macos-x64 build/ntpc_macos-arm64 package validate-version clean
+.PHONY: ntpc ntpc-non-macos ntpc-macos build/ntpc_win-x64.exe build/ntpc_linux-x64 build/ntpc_macos-x64 build/ntpc_macos-arm64 package validate-version clean
 
 CLIENT_PROJECT := src/Client/RobertHodgen.Ntp.Client.csproj
 CLI_PROJECT := src/Cli/RobertHodgen.Ntp.Cli.csproj
@@ -8,6 +8,10 @@ VERSION ?= $(patsubst v%,%,$(CURRENT_TAG))
 PACKAGE_VERSION := /p:PackageVersion=$(VERSION)
 
 ntpc: build/ntpc_win-x64.exe build/ntpc_linux-x64 build/ntpc_macos-x64 build/ntpc_macos-arm64
+
+ntpc-non-macos: build/ntpc_win-x64.exe build/ntpc_linux-x64
+
+ntpc-macos: build/ntpc_macos-x64 build/ntpc_macos-arm64
 
 build/ntpc_win-x64.exe:
 	mkdir -p $(BUILD_DIR)
