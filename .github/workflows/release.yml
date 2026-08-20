@@ -30,8 +30,13 @@ jobs:
       - name: 🧪 Test
         run: dotnet test ntp-cli.sln -c Release
 
-      - name: 🏗️ Build packages and non-macOS binaries
-        run: make package ntpc-non-macos
+      - name: 🏗️ Build CLI Binaries
+        run: |
+          mkdir -p build
+          dotnet publish src/Cli -c Release --runtime win-x64
+          cp src/Cli/bin/Release/net10.0/win-x64/publish/RobertHodgen.Ntp.Cli.exe build/ntpc_win-x64.exe
+          dotnet publish src/Cli -c Release --runtime linux-x64
+          cp src/Cli/bin/Release/net10.0/linux-x64/publish/RobertHodgen.Ntp.Cli build/ntpc_linux-x64
 
       - name: ⬆️ Upload package artifacts
         uses: actions/upload-artifact@v4
@@ -69,8 +74,13 @@ jobs:
       - name: 📦 NuGet Restore
         run: dotnet restore ntp-cli.sln
 
-      - name: 🏗️ Build macOS binaries
-        run: make ntpc-macos
+      - name: 🏗️ Build macOS Binaries
+        run: |
+          mkdir -p build
+          dotnet publish src/Cli -c Release -p:PublishAot=true --runtime osx-x64
+          cp src/Cli/bin/Release/net10.0/osx-x64/publish/RobertHodgen.Ntp.Cli build/ntpc_macos-x64
+          dotnet publish src/Cli -c Release -p:PublishAot=true --runtime osx-arm64
+          cp src/Cli/bin/Release/net10.0/osx-arm64/publish/RobertHodgen.Ntp.Cli build/ntpc_macos-arm64
 
       - name: 🔐 Import Apple signing certificate
         env:
