@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore ntp-cli.sln
 
       - name: ✅ Test
-        run: dotnet test ntp-cli.sln
+        run: dotnet test -c Release
 
       - name: 🛠 Build
-        run: make
+        run: dotnet build -c Release
