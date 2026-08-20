@@ -30,14 +30,22 @@ jobs:
       - name: 🧪 Test
         run: dotnet test ntp-cli.sln -c Release
 
-      - name: 🏗️ Build Binaries
+      - name: 🏗️ Build CLI Binaries
         run: |
           mkdir -p build
           dotnet publish src/Cli -c Release --runtime win-x64   -o build/ntpc_win-x64.exe
           dotnet publish src/Cli -c Release --runtime linux-x64 -o build/ntpc_linux-x64
 
-      - name: 🏗 Build Client
-        run: dotnet pack src/Client -c Release -o build /p:PackageVersion=$(VERSION)
+      - name: 🏗 Build Client Package
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+          if [ "$GITHUB_REF_NAME" != "v$PACKAGE_VERSION" ]; then
+            printf 'Release tag %s does not match package.json version %s; expected tag v%s\n' "$GITHUB_REF_NAME" "$PACKAGE_VERSION" "$PACKAGE_VERSION" >&2
+            exit 1
+          fi
+
+          dotnet pack src/Client -c Release -o build /p:PackageVersion=$PACKAGE_VERSION
 
       - name: ⬆️ Upload NuGet Artifacts
         uses: actions/upload-artifact@v4
@@ -78,8 +86,8 @@ jobs:
       - name: 🏗️ Build macOS Binaries
         run: |
           mkdir -p build
-          dotnet publish src/Cli -c Release --runtime osx-x64   -p:PublishAot=true -o build/ntpc_macos-x64
-          dotnet publish src/Cli -c Release --runtime osx-arm64 -p:PublishAot=true -o build/ntpc_macos-arm64
+          dotnet publish src/Cli -c Release -p:PublishAot=true --runtime osx-x64   -o build/ntpc_macos-x64
+          dotnet publish src/Cli -c Release -p:PublishAot=true --runtime osx-arm64 -o build/ntpc_macos-arm64
 
       - name: 🔐 Import Apple Signing Certificate
         env:

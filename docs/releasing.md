@@ -7,7 +7,7 @@ This repository publishes only `src/Client/RobertHodgen.Ntp.Client.csproj` to Nu
 Create the NuGet package and symbols package locally:
 
 ```bash
-make package VERSION=0.1.0-local
+dotnet pack src/Client -c Release -o build /p:PackageVersion=0.1.0-local
 ```
 
 Output is written to `build/`:
@@ -15,26 +15,26 @@ Output is written to `build/`:
 - `RobertHodgen.Ntp.Client.<version>.nupkg`
 - `RobertHodgen.Ntp.Client.<version>.snupkg`
 
-When `VERSION` is omitted, the `Makefile` derives the package version from the current exact Git tag. For example, `v1.2.3` becomes `1.2.3`. If there is no exact tag, pass `VERSION=<semver>` explicitly.
+The package version is passed explicitly with `/p:PackageVersion=<semver>`. For local builds, use a non-released version like `0.1.0-local`.
 
-Build CLI release binaries locally:
+Build a CLI release binary locally:
 
 ```bash
-make ntpc
+dotnet publish src/Cli -c Release --runtime osx-arm64 -o build/ntpc_macos-arm64
 ```
+
+Replace `osx-arm64` with `win-x64`, `linux-x64`, or `osx-x64` as needed.
 
 Clean generated release outputs:
 
 ```bash
-make clean
+dotnet clean -c Release
+rm -rf build
 ```
 
 ## Automated Releases
 
-The release workflow runs when a tag matching `v*` is pushed. Tags must use SemVer after the leading `v`, for example:
-
-- `v1.2.3`
-- `v1.2.3-preview.1`
+The release workflow runs when a tag matching `v*` is pushed. The package version comes from the `version` field in root `package.json`, and the tag must match it with a leading `v`. For example, a `package.json` version of `1.2.3` must be released from tag `v1.2.3`.
 
 Create and push a release tag:
 
@@ -45,8 +45,9 @@ git push origin v0.1.0
 
 The release workflow will:
 
+- Read the package version from `package.json` and fail if the tag does not match `v<version>`.
 - Restore, build, and test the solution.
-- Run `make package ntpc-non-macos`; the `Makefile` derives the package version from the tag and writes NuGet, Windows, and Linux release artifacts under `build/`.
+- Pack `src/Client` with the `package.json` version and build Windows and Linux CLI release artifacts under `build/`.
 - Build, sign, zip, and notarize macOS CLI binaries on a macOS runner.
 - Publish the `.nupkg` and `.snupkg` to NuGet.
 - Create a GitHub Release with `gh release create` using generated release notes.

@@ -8,13 +8,30 @@
 ## Build
 
 1. Ensure .NET 10 SDK is installed and available
-2. Run `make ntpc` to output the Windows, macOS, and Linux binaries under `build/`.
+2. Restore and build the solution:
 
-Depending upon your platform and architecture use one of:
-- `build/ntpc_win-x64.exe` for Windows x64
-- `build/ntpc_linux-x64` for Linux x64
-- `build/ntpc_macos-x64` for macOS x64
-- `build/ntpc_macos-arm64` for macOS arm64
+```bash
+dotnet restore ntp-cli.sln
+dotnet build ntp-cli.sln
+```
+
+3. Run the tests:
+
+```bash
+dotnet test ntp-cli.sln
+```
+
+Build a release binary for your platform and architecture:
+
+```bash
+dotnet publish src/Cli -c Release --runtime osx-arm64 -o build/ntpc_macos-arm64
+```
+
+Replace `osx-arm64` with the runtime identifier for your platform and architecture:
+- `win-x64` for Windows x64
+- `linux-x64` for Linux x64
+- `osx-x64` for macOS x64
+- `osx-arm64` for macOS arm64
 
 ## NuGet Package
 
@@ -23,7 +40,7 @@ Only the `RobertHodgen.Ntp.Client` project is packaged for NuGet.
 Build the package locally:
 
 ```bash
-make package VERSION=0.1.0-local
+dotnet pack src/Client -c Release -o build /p:PackageVersion=0.1.0-local
 ```
 
 The package and symbols package are written to `build/`.
