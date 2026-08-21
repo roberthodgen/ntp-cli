@@ -41,5 +41,7 @@ public sealed record Packet<THeader>
         return new (header, destinationTimestamp);
     }
 
-    public byte[] Encode() => Header.Encode(); // TODO: handle KeyID and digest, if necessary
+    // This client does not implement NTP authentication or extension field serialization.
+    // Requests are unauthenticated 48-byte headers; received extension bytes are accepted but not re-encoded.
+    public byte[] Encode() => Header.Encode();
 }

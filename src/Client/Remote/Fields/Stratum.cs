@@ -39,7 +39,7 @@ public sealed record Stratum : EncodableBase
     {
         0 => "Unspecified or Invalid",
         1 => "Primary Server (e.g., equipped with a GPS receiver)",
-        > 2 and < 16 => "Secondary Server (via NTP)",
+        >= 2 and <= 15 => "Secondary Server (via NTP)",
         16 => "Unsynchronized",
         _ => "Reserved",
     };

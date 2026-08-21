@@ -6,7 +6,7 @@ public sealed record ExtensionField : EncodableBase
 
     public byte[] Value { get; }
 
-    public ushort FieldTye { get; }
+    public ushort FieldType { get; }
 
     public ushort Length { get; }
 
