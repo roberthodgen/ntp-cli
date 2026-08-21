@@ -10,6 +10,15 @@
 ## Standards Reference
 - `docs/rfc5905.txt` is a local copy of RFC 5905, the NTPv4 protocol and algorithms specification. Read it when answering questions or making changes related to NTP standards, packet fields, timestamp formats, protocol modes, or wire behavior.
 
+## RFC Compliance
+All NTP client code must be compliant with RFC 5905. Key sections to reference when implementing or modifying NTP-related code:
+- **Section 6 (Data Types)** — 64-bit fixed-point timestamps, 32-bit fixed-point timestamps, timedelta, and millisecond types. Verify timestamp field implementations against the NTP timestamp format (32-bit seconds + 32-bit fraction since 1900).
+- **Section 7 (Data Structures)** — Packet header layout (li, vn, mode, stratum, poll, precision, delay, dispersion, refid, and timestamp fields). When adding or modifying packet encoding/parsing, cross-check field positions, sizes, and endianness against Section 7.3.
+- **Section 8 (On-Wire Protocol)** — Client/server exchange rules, mode values, leap second indicator handling, version number negotiation, and Kiss-o'-Death packets. Client code must handle all defined server mode responses and leap indicator values per spec.
+- **Section 3 (Protocol Modes)** — Client mode (mode 3) behavior, including request/response exchange and dynamic server discovery.
+
+When writing or reviewing code in `src/Client/Remote`, verify the implementation against the RFC before considering the work complete. Test cases should cover RFC-defined edge cases such as leap second indicators, version negotiation, and Kiss-o'-Death codes.
+
 ## Commands
 - Restore/build the full solution with `dotnet restore ntp-cli.sln` then `dotnet build ntp-cli.sln`.
 - Run all tests with `dotnet test ntp-cli.sln`.
