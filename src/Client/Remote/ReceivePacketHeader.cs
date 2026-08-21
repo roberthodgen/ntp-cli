@@ -1,5 +1,6 @@
 namespace RobertHodgen.Ntp.Client.Remote;
 
+using RobertHodgen.Ntp.Client;
 using Fields;
 
 /// <summary>
@@ -83,5 +84,17 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
                 receiveTimestamp,
                 transmitTimestamp),
             destinationTimestamp);
+    }
+
+    public KissCodes? KissCode => Stratum == Stratum.UnspecifiedOrInvalid
+        ? KissCodes.CreateNew(ReferenceId.Value)
+        : null;
+
+    public void ValidateKissODeath()
+    {
+        if (KissCode is { RequiresClientAction: true } kissCode)
+        {
+            throw new NtpKissODeathException(kissCode);
+        }
     }
 }

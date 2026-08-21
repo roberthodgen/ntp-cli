@@ -59,4 +59,12 @@ public sealed record KissCodes
     public string Value { get; } // TODO this needs to be merged into the reference ID type
 
     public static KissCodes CreateNew(string value) => new (value);
+
+    public static KissCodes Deny => new ("DENY");
+
+    public static KissCodes RestrictedAccess => new ("RSTR");
+
+    public static KissCodes RateExceeded => new ("RATE");
+
+    public bool RequiresClientAction => Value is "DENY" or "RSTR" or "RATE";
 }

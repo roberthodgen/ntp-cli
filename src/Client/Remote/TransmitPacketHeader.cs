@@ -19,7 +19,7 @@ public sealed record TransmitPacketHeader : PacketHeaderBase
             RootDispersion.Zero,
             ReferenceId.Empty,
             ReferenceTimestamp.Zero, // TODO never checked
-            OriginTimestamp.Now,
+            OriginTimestamp.SerializableNow,
             ReceiveTimestamp.Zero,
             TransmitTimestamp.Zero)
     {

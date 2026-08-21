@@ -12,10 +12,17 @@ public sealed class Client
 
     private readonly string _host;
     private readonly List<IPAddress> _addresses = [];
+    private readonly Func<string, CancellationToken, Task<IPAddress[]>> _getHostAddressesAsync;
 
     public Client(string server = DefaultServer)
+        : this(server, Dns.GetHostAddressesAsync)
+    {
+    }
+
+    internal Client(string server, Func<string, CancellationToken, Task<IPAddress[]>> getHostAddressesAsync)
     {
         _host = server;
+        _getHostAddressesAsync = getHostAddressesAsync;
     }
 
     public async Task<Request> ConnectAsync(CancellationToken ct = default)
@@ -34,14 +41,21 @@ public sealed class Client
         return new Request(requestPacket, receivePacket);
     }
 
-    private static Packet<ReceivePacketHeader> ReadResponse(SocketReceiveFromResult response, Memory<byte> buffer)
+    internal static Packet<ReceivePacketHeader> ReadResponse(int receivedBytes, Memory<byte> buffer)
     {
         var destinationTimestamp = NtpTimestamp.Now;
-        var actualReceived = buffer[..response.ReceivedBytes];
-        return ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
+        var actualReceived = buffer[..receivedBytes];
+        var receivePacket = ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
+        receivePacket.Header.ValidateKissODeath();
+        return receivePacket;
     }
 
-    private async Task InitializeClientAsync(CancellationToken ct = default)
+    private static Packet<ReceivePacketHeader> ReadResponse(SocketReceiveFromResult response, Memory<byte> buffer)
+    {
+        return ReadResponse(response.ReceivedBytes, buffer);
+    }
+
+    internal async Task InitializeClientAsync(CancellationToken ct = default)
     {
         if (_addresses.Any())
         {
@@ -49,7 +63,7 @@ public sealed class Client
         }
 
         Log.Information("Using host: {defaultServer}", _host);
-        _addresses.AddRange(await Dns.GetHostAddressesAsync("pool.ntp.org", ct));
+        _addresses.AddRange(await _getHostAddressesAsync(_host, ct));
         if (_addresses.Count == 0)
         {
             throw new ApplicationException("Could not resolve any IP addresses.");
