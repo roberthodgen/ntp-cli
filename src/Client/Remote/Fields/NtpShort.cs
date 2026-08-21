@@ -14,6 +14,8 @@ public sealed record NtpShort : EncodableBase
 {
     private const long TicksPerSecond = TimeSpan.TicksPerSecond;
 
+    private const double FractionDivisor = 65536d;
+
     public static NtpShort Zero => new (0, 0);
 
     public ushort Seconds { get; }
@@ -31,7 +33,7 @@ public sealed record NtpShort : EncodableBase
     public static NtpShort FromTimeSpan(TimeSpan timeSpan)
     {
         var seconds = Convert.ToUInt16(Math.Floor(timeSpan.TotalSeconds));
-        var fraction = Convert.ToUInt16((timeSpan.TotalSeconds - seconds) * ushort.MaxValue);
+        var fraction = Convert.ToUInt16((timeSpan.TotalSeconds - seconds) * FractionDivisor);
         return new (seconds, fraction);
     }
 
@@ -76,7 +78,7 @@ public sealed record NtpShort : EncodableBase
 
     public TimeSpan ToTimeSpan()
     {
-        return new TimeSpan((Seconds * TicksPerSecond) + (Fraction / ushort.MaxValue * TicksPerSecond));
+        return TimeSpan.FromSeconds(Seconds + (Fraction / FractionDivisor));
     }
 
     public override string ToString() => ToTimeSpan().ToString("G");

@@ -16,6 +16,8 @@ public sealed record NtpTimestamp : EncodableBase
 {
     private const uint UnixEpochSecondFromEra0 = 2208988800;
 
+    private const double FractionDivisor = 4294967296d;
+
     public static NtpTimestamp Zero => new (0, 0);
 
     /// <summary>
@@ -39,7 +41,7 @@ public sealed record NtpTimestamp : EncodableBase
     {
         var diffFromEpoch = (time - DateTime.UnixEpoch);
         var seconds = Convert.ToUInt32(Math.Floor(diffFromEpoch.TotalSeconds));
-        var fraction = Convert.ToUInt32((diffFromEpoch.TotalSeconds - seconds) * uint.MaxValue);
+        var fraction = Convert.ToUInt32((diffFromEpoch.TotalSeconds - seconds) * FractionDivisor);
         return new (seconds + UnixEpochSecondFromEra0, fraction);
     }
 
@@ -83,7 +85,7 @@ public sealed record NtpTimestamp : EncodableBase
     }
 
     public DateTime ToDateTime() => DateTime.UnixEpoch
-        .AddSeconds(Seconds - UnixEpochSecondFromEra0 + (Fraction / (double)uint.MaxValue));
+        .AddSeconds(Seconds - UnixEpochSecondFromEra0 + (Fraction / FractionDivisor));
 
     public override string ToString() => ToDateTime().ToString("O");
 }
