@@ -83,13 +83,7 @@ public sealed record ReferenceId : EncodableBase
             throw new ArgumentException("Reference ID must be exactly 4 characters.", nameof(memory));
         }
 
-        var referenceId = new Span<byte>(memory.ToArray());
-        if (BitConverter.IsLittleEndian)
-        {
-            referenceId.Reverse();
-        }
-
-        return new (Encoding.ASCII.GetString(referenceId));
+        return new (Encoding.ASCII.GetString(memory.Span));
     }
 
     public override byte[] Encode()
