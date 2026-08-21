@@ -7,6 +7,9 @@
 - Tests live under `src/Tests/Client`, use xUnit with Shouldly, and currently reference only the client project.
 - The NuGet package version is the `version` field in root `package.json`; the release workflow reads it there and requires the release tag to be `v<version>`.
 
+## Standards Reference
+- `docs/rfc5905.txt` is a local copy of RFC 5905, the NTPv4 protocol and algorithms specification. Read it when answering questions or making changes related to NTP standards, packet fields, timestamp formats, protocol modes, or wire behavior.
+
 ## Commands
 - Restore/build the full solution with `dotnet restore ntp-cli.sln` then `dotnet build ntp-cli.sln`.
 - Run all tests with `dotnet test ntp-cli.sln`.
