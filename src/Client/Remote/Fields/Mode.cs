@@ -44,6 +44,8 @@ public sealed record Mode : EncodableBase
         Value = value;
     }
 
+    public static Mode Reconstitute(byte value) => new (value);
+
     public override byte[] Encode() => [Value];
 
     public override string ToString() => Value switch

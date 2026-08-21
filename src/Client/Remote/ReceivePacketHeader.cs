@@ -40,13 +40,24 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
 
     public static Packet<ReceivePacketHeader> Parse(Memory<byte> response, NtpTimestamp destinationTimestamp)
     {
-        if (response.Length != 48)
+        if (response.Length < 48)
         {
-            throw new ArgumentException("Header must be 48 bytes.", nameof(response));
+            throw new ArgumentException("Header must be at least 48 bytes.", nameof(response));
         }
 
-        var word0 = BitConverter.ToUInt32(response[..4].ToArray());
-        // TODO parse word 0
+        var word0Bytes = response[..4].ToArray();
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(word0Bytes);
+        }
+
+        var word0 = BitConverter.ToUInt32(word0Bytes);
+        var leapIndicator = LeapIndicator.Reconstitute((byte)((word0 >> 30) & 0b_11));
+        var versionNumber = VersionNumber.Reconstitute((byte)((word0 >> 27) & 0b_111));
+        var mode = Mode.Reconstitute((byte)((word0 >> 24) & 0b_111));
+        var stratum = Stratum.Reconstitute(response.Span[1]);
+        var poll = Poll.Reconstitute(unchecked((sbyte)response.Span[2]));
+        var precision = Precision.Reconstitute(unchecked((sbyte)response.Span[3]));
 
         var rootDelay = RootDelay.Parse(response[4..8]);
         var rootDispersion = RootDispersion.Parse(response[8..12]);
@@ -58,12 +69,12 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
 
         return Packet<ReceivePacketHeader>.CreateNewFromHeaderWithDestinationTimestamp(
             new ReceivePacketHeader(
-                LeapIndicator.NoWarning, // TODO
-                VersionNumber.Four, // TODO
-                Mode.Server, // TODO
-                Stratum.UnspecifiedOrInvalid, // TODO
-                Poll.MaximumRecommended, // TODO
-                Precision.Microsecond, // TODO
+                leapIndicator,
+                versionNumber,
+                mode,
+                stratum,
+                poll,
+                precision,
                 rootDelay,
                 rootDispersion,
                 referenceId,

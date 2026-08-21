@@ -31,6 +31,8 @@ public sealed record LeapIndicator : EncodableBase
         Value = value;
     }
 
+    public static LeapIndicator Reconstitute(byte value) => new (value);
+
     public override byte[] Encode() => [Value];
 
     public override string ToString() => Value switch

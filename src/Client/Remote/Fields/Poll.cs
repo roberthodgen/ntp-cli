@@ -19,6 +19,8 @@ public sealed record Poll : EncodableBase
         Value = value;
     }
 
+    public static Poll Reconstitute(sbyte value) => new (value);
+
     public override byte[] Encode() => [(byte)Value];
 
     public override string ToString() => (Value) < 0 ? $"{1.0 / (1L << -(Value))}" : $"{1L << (Value)}";

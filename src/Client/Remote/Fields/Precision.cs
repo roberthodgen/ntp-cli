@@ -18,6 +18,8 @@ public sealed record Precision : EncodableBase
         Value = value;
     }
 
+    public static Precision Reconstitute(sbyte value) => new (value);
+
     public override byte[] Encode() => [(byte)Value];
 
     public override string ToString() => (Value) < 0 ? $"{1.0 / (1L << -(Value)):e2}" : $"{1L << (Value):e2}";
