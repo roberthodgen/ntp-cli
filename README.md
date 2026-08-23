@@ -4,6 +4,7 @@
 
 - Inspiration: [Build your own NTP Client Code Challenge](https://codingchallenges.fyi/challenges/challenge-ntp/)
 - [RFC 5905 - Network Time Protocol Version 4](https://datatracker.ietf.org/doc/html/rfc5905)
+- Local RFC 5905 copy for standards reference: [docs/rfc5905.txt](docs/rfc5905.txt)
 
 ## Build
 
