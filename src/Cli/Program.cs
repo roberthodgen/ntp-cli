@@ -2,6 +2,7 @@
 
 using System.CommandLine;
 using RobertHodgen.Ntp.Client;
+using RobertHodgen.Ntp.Client.Remote;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -46,7 +47,8 @@ checkCommand.SetAction(
             levelSwitch.MinimumLevel = LogEventLevel.Verbose;
         }
 
-        var client = await Client.CreateWithHostAsync("pool.ntp.org", cancellationToken);
+        var clock = new MonotonicClock();
+        var client = await Client.CreateWithHostAsync("pool.ntp.org", cancellationToken, clock);
         var request = await client.ConnectAsync(cancellationToken);
         
         Log.Debug("Server response headers:");
