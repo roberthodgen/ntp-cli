@@ -56,15 +56,35 @@ public sealed record KissCodes
         Value = value;
     }
 
+    /// <summary>
+    /// Gets the four-character ASCII kiss code value.
+    /// </summary>
     public string Value { get; } // TODO this needs to be merged into the reference ID type
 
+    /// <summary>
+    /// Creates a new kiss code from a four-character ASCII string.
+    /// </summary>
+    /// <param name="value">A four-character ASCII string.</param>
+    /// <returns>A new <see cref="KissCodes"/> instance.</returns>
     public static KissCodes CreateNew(string value) => new (value);
 
+    /// <summary>
+    /// Access denied by remote server. Client must stop sending packets to that server.
+    /// </summary>
     public static KissCodes Deny => new ("DENY");
 
+    /// <summary>
+    /// Access denied due to local policy. Client must stop sending packets to that server.
+    /// </summary>
     public static KissCodes RestrictedAccess => new ("RSTR");
 
+    /// <summary>
+    /// Rate exceeded. Client must reduce its polling interval.
+    /// </summary>
     public static KissCodes RateExceeded => new ("RATE");
 
+    /// <summary>
+    /// Gets a value indicating whether the client must take action upon receiving this kiss code.
+    /// </summary>
     public bool RequiresClientAction => Value is "DENY" or "RSTR" or "RATE";
 }

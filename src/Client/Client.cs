@@ -5,6 +5,9 @@ using System.Net.Sockets;
 using Remote;
 using Serilog;
 
+/// <summary>
+/// NTP client that sends requests to a remote NTP server and calculates clock offset and delay.
+/// </summary>
 public sealed class Client
 {
     private readonly IPEndPoint _endPoint;
@@ -37,9 +40,17 @@ public sealed class Client
     /// <summary>
     /// Factory method to create a new <see cref="Client"/> instance from an IP address.
     /// </summary>
+    /// <param name="clock">The monotonic clock to use for timestamp capture.</param>
+    /// <param name="address">The IP address of the NTP server.</param>
+    /// <returns>A new <see cref="Client"/> instance.</returns>
     public static Client CreateForIpAddress(IMonotonicClock clock, IPAddress address) => new (address, clock);
 
-    // TODO: rename to SampleAsync
+    /// <summary>
+    /// Sends an NTP request to the configured server and returns the request/response exchange.
+    /// </summary>
+    /// <param name="ct">Cancellation token for the network operation.</param>
+    /// <returns>A <see cref="Request"/> containing the exchange data with calculated offset and delay.</returns>
+    // TODO rename to SampleAsync
     public async Task<Request> ConnectAsync(CancellationToken ct = default)
     {
         using var client = new UdpClient();

@@ -22,12 +22,29 @@ public sealed record NtpTimestamp : EncodableBase
 
     public static NtpTimestamp Zero => new (0, 0);
 
+    /// <summary>
+    /// Creates an NTP timestamp from raw seconds and fraction values.
+    /// </summary>
+    /// <param name="seconds">Seconds since NTP era 0 (January 1, 1900).</param>
+    /// <param name="fraction">Fractional seconds as a 32-bit fixed-point number.</param>
+    /// <returns>A new <see cref="NtpTimestamp"/> instance.</returns>
     public static NtpTimestamp Create(uint seconds, uint fraction) => new (seconds, fraction);
 
+    /// <summary>
+    /// Creates an NTP timestamp from the current clock time.
+    /// </summary>
+    /// <param name="clock">The monotonic clock to read from.</param>
+    /// <returns>A new <see cref="NtpTimestamp"/> instance.</returns>
     public static NtpTimestamp FromClock(IMonotonicClock clock) => clock.Capture();
 
+    /// <summary>
+    /// Gets the integer seconds portion of the timestamp (seconds since NTP era 0: January 1, 1900).
+    /// </summary>
     public uint Seconds { get; }
 
+    /// <summary>
+    /// Gets the fractional seconds portion of the timestamp (32-bit).
+    /// </summary>
     public uint Fraction { get; }
 
     public override int SizeInBits => 8 * 8;
@@ -38,6 +55,11 @@ public sealed record NtpTimestamp : EncodableBase
         Fraction = fraction;
     }
 
+    /// <summary>
+    /// Creates an NTP timestamp from a <see cref="DateTime"/> value.
+    /// </summary>
+    /// <param name="time">The date and time to convert.</param>
+    /// <returns>A new <see cref="NtpTimestamp"/> instance.</returns>
     public static NtpTimestamp FromDateTime(DateTime time)
     {
         var diffFromEpoch = (time - DateTime.UnixEpoch);
@@ -46,6 +68,11 @@ public sealed record NtpTimestamp : EncodableBase
         return new (seconds + UnixEpochSecondFromEra0, fraction);
     }
 
+    /// <summary>
+    /// Parses an NTP timestamp from the given byte memory.
+    /// </summary>
+    /// <param name="memory">8 bytes of NTP timestamp data in network byte order.</param>
+    /// <returns>A new <see cref="NtpTimestamp"/> instance.</returns>
     public static NtpTimestamp Parse(Memory<byte> memory)
     {
         if (memory.Length != 8)
@@ -85,6 +112,10 @@ public sealed record NtpTimestamp : EncodableBase
         return [..seconds, ..fraction];
     }
 
+    /// <summary>
+    /// Converts this NTP timestamp to a <see cref="DateTime"/> value.
+    /// </summary>
+    /// <returns>The equivalent date and time.</returns>
     public DateTime ToDateTime() => DateTime.UnixEpoch
         .AddSeconds(Seconds - UnixEpochSecondFromEra0 + (Fraction / FractionDivisor));
 

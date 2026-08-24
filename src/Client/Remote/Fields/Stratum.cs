@@ -22,6 +22,9 @@ public sealed record Stratum : EncodableBase
 
     public static Stratum Unsynchronized => new (16);
 
+    /// <summary>
+    /// Gets the stratum value.
+    /// </summary>
     public byte Value { get; }
 
     public override int SizeInBits => 8;
@@ -31,6 +34,11 @@ public sealed record Stratum : EncodableBase
         Value = value;
     }
 
+    /// <summary>
+    /// Creates a <see cref="Stratum"/> from a raw byte value received on the wire.
+    /// </summary>
+    /// <param name="stratum">The raw stratum byte.</param>
+    /// <returns>A new <see cref="Stratum"/> instance.</returns>
     public static Stratum Reconstitute(byte stratum) => new (stratum);
 
     public override byte[] Encode() => [Value];

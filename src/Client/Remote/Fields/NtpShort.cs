@@ -18,8 +18,14 @@ public sealed record NtpShort : EncodableBase
 
     public static NtpShort Zero => new (0, 0);
 
+    /// <summary>
+    /// Gets the integer seconds portion of the timestamp.
+    /// </summary>
     public ushort Seconds { get; }
 
+    /// <summary>
+    /// Gets the fractional seconds portion of the timestamp (16-bit).
+    /// </summary>
     public ushort Fraction { get; }
 
     public override int SizeInBits => 4 * 8;
@@ -30,6 +36,11 @@ public sealed record NtpShort : EncodableBase
         Fraction = fraction;
     }
 
+    /// <summary>
+    /// Creates an NTP short timestamp from a <see cref="TimeSpan"/>.
+    /// </summary>
+    /// <param name="timeSpan">The time span to convert.</param>
+    /// <returns>A new <see cref="NtpShort"/> instance.</returns>
     public static NtpShort FromTimeSpan(TimeSpan timeSpan)
     {
         var seconds = Convert.ToUInt16(Math.Floor(timeSpan.TotalSeconds));
@@ -37,6 +48,11 @@ public sealed record NtpShort : EncodableBase
         return new (seconds, fraction);
     }
 
+    /// <summary>
+    /// Parses an NTP short timestamp from the given byte memory.
+    /// </summary>
+    /// <param name="memory">4 bytes of NTP short timestamp data in network byte order.</param>
+    /// <returns>A new <see cref="NtpShort"/> instance.</returns>
     public static NtpShort Parse(Memory<byte> memory)
     {
         if (memory.Length != 4)
@@ -76,6 +92,10 @@ public sealed record NtpShort : EncodableBase
         return [..seconds, ..fraction];
     }
 
+    /// <summary>
+    /// Converts this NTP short timestamp to a <see cref="TimeSpan"/>.
+    /// </summary>
+    /// <returns>The equivalent time span.</returns>
     public TimeSpan ToTimeSpan()
     {
         return TimeSpan.FromSeconds(Seconds + (Fraction / FractionDivisor));

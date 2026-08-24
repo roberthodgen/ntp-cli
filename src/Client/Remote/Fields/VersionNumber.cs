@@ -10,6 +10,9 @@ public sealed record VersionNumber : EncodableBase
     /// </summary>
     public static VersionNumber Four => new (4);
 
+    /// <summary>
+    /// Gets the NTP version number value.
+    /// </summary>
     public byte Value { get; }
 
     public override int SizeInBits => 3;
@@ -19,6 +22,11 @@ public sealed record VersionNumber : EncodableBase
         Value = value;
     }
 
+    /// <summary>
+    /// Creates a <see cref="VersionNumber"/> from a raw byte value received on the wire.
+    /// </summary>
+    /// <param name="version">The raw version number byte.</param>
+    /// <returns>A new <see cref="VersionNumber"/> instance.</returns>
     public static VersionNumber Reconstitute(byte version) => new (version);
 
     public override byte[] Encode() => [Value];

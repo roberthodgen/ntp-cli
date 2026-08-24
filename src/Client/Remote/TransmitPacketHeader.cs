@@ -34,6 +34,11 @@ public sealed record TransmitPacketHeader : PacketHeaderBase
     {
     }
 
+    /// <summary>
+    /// Creates a new NTP request packet ready to be sent to an NTP server.
+    /// </summary>
+    /// <param name="clock">The monotonic clock to use for the transmit timestamp.</param>
+    /// <returns>A new <see cref="Packet{TransmitPacketHeader}"/> instance.</returns>
     public static Packet<TransmitPacketHeader> CreateNewPacket(IMonotonicClock clock)
     {
         return Packet<TransmitPacketHeader>.CreateNewFromHeader(new TransmitPacketHeader(clock));

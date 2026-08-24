@@ -39,6 +39,13 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
     {
     }
 
+    /// <summary>
+    /// Parses a server response packet from the given byte memory.
+    /// </summary>
+    /// <param name="response">The raw response bytes (at least 48 bytes).</param>
+    /// <param name="destinationTimestamp">The local time when the response was received.</param>
+    /// <returns>A new <see cref="Packet{ReceivePacketHeader}"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when the response is less than 48 bytes.</exception>
     public static Packet<ReceivePacketHeader> Parse(Memory<byte> response, NtpTimestamp destinationTimestamp)
     {
         if (response.Length < 48)
@@ -86,10 +93,17 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
             destinationTimestamp);
     }
 
+    /// <summary>
+    /// Gets the kiss code if this is a Kiss-o'-Death packet (stratum 0), otherwise null.
+    /// </summary>
     public KissCodes? KissCode => Stratum == Stratum.UnspecifiedOrInvalid
         ? KissCodes.CreateNew(ReferenceId.Value)
         : null;
 
+    /// <summary>
+    /// Validates the response and throws if the server sent a Kiss-o'-Death packet requiring client action.
+    /// </summary>
+    /// <exception cref="NtpKissODeathException">Thrown when the kiss code requires client action (DENY, RSTR, or RATE).</exception>
     public void ValidateKissODeath()
     {
         if (KissCode is { RequiresClientAction: true } kissCode)

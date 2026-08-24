@@ -6,6 +6,9 @@ namespace RobertHodgen.Ntp.Client.Remote.Fields;
 public sealed record ReferenceTimestamp : EncodableBase
 {
     public static ReferenceTimestamp Zero => new (NtpTimestamp.Zero);
+    /// <summary>
+    /// Gets the NTP timestamp value for the reference time.
+    /// </summary>
     public NtpTimestamp Value { get; }
 
     public override int SizeInBits => Value.SizeInBits;
@@ -15,6 +18,11 @@ public sealed record ReferenceTimestamp : EncodableBase
         Value = value;
     }
 
+    /// <summary>
+    /// Parses an NTP timestamp from the given byte memory.
+    /// </summary>
+    /// <param name="memory">8 bytes of NTP timestamp data in network byte order.</param>
+    /// <returns>A new <see cref="ReferenceTimestamp"/> instance.</returns>
     public static ReferenceTimestamp Parse(Memory<byte> memory) => new (NtpTimestamp.Parse(memory));
 
     public override byte[] Encode() => Value.Encode();

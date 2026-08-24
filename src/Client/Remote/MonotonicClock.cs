@@ -3,6 +3,13 @@ namespace RobertHodgen.Ntp.Client.Remote;
 using System.Diagnostics;
 using Fields;
 
+/// <summary>
+/// High-resolution monotonic clock implementation that captures NTP timestamps with sub-millisecond precision.
+/// </summary>
+/// <remarks>
+/// Uses <see cref="Stopwatch"/> to measure elapsed time from a reference point,
+/// avoiding discontinuities caused by system clock adjustments.
+/// </remarks>
 public sealed class MonotonicClock : IMonotonicClock
 {
     private const ulong NtpFractionDivisor = 4294967296ul;
@@ -13,6 +20,9 @@ public sealed class MonotonicClock : IMonotonicClock
     private readonly uint _referenceFraction;
     private readonly Stopwatch _stopwatch;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MonotonicClock"/> class, capturing the current time as a reference point.
+    /// </summary>
     public MonotonicClock()
     {
         #region Time Sensitive
@@ -27,8 +37,10 @@ public sealed class MonotonicClock : IMonotonicClock
         _referenceFraction = ntp.Fraction;
     }
 
+    /// <inheritdoc />
     public DateTime UtcNow => _referenceTime + _stopwatch.Elapsed;
 
+    /// <inheritdoc />
     public NtpTimestamp Capture()
     {
         var elapsedTicks = _stopwatch.ElapsedTicks;
