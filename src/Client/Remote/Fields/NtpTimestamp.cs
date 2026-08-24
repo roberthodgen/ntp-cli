@@ -20,6 +20,8 @@ public sealed record NtpTimestamp : EncodableBase
 
     public static NtpTimestamp Zero => new (0, 0);
 
+    public static NtpTimestamp Create(uint seconds, uint fraction) => new (seconds, fraction);
+
     /// <summary>
     /// Gets a NTP timestamp representing the current time.
     /// </summary>
