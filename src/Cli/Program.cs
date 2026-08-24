@@ -46,7 +46,8 @@ checkCommand.SetAction(
             levelSwitch.MinimumLevel = LogEventLevel.Verbose;
         }
 
-        var request = await new Client().ConnectAsync(cancellationToken);
+        var client = await Client.CreateWithHostAsync("pool.ntp.org", cancellationToken);
+        var request = await client.ConnectAsync(cancellationToken);
         
         Log.Debug("Server response headers:");
         request.ServerResponse.Header.LogDebugData();

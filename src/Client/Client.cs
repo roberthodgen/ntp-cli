@@ -10,24 +10,28 @@ public sealed class Client
 {
     private const string DefaultServer = "pool.ntp.org";
 
-    private readonly string _host;
     private readonly List<IPAddress> _addresses = [];
-    private readonly Func<string, CancellationToken, Task<IPAddress[]>> _getHostAddressesAsync;
 
-    public Client(string server = DefaultServer)
-        : this(server, Dns.GetHostAddressesAsync)
+    public Client(IPAddress[] addresses)
     {
+        if (addresses.Length == 0)
+        {
+            throw new ApplicationException("Could not resolve any IP addresses.");
+        }
+
+        _addresses.AddRange(addresses);
     }
 
-    internal Client(string server, Func<string, CancellationToken, Task<IPAddress[]>> getHostAddressesAsync)
+    public static async Task<Client> CreateWithHostAsync(string server = DefaultServer, CancellationToken ct = default)
     {
-        _host = server;
-        _getHostAddressesAsync = getHostAddressesAsync;
+        return new Client(await Dns.GetHostAddressesAsync(server, ct));
     }
 
+    public static Client CreateWithIpAddresses(params IPAddress[] addresses) => new(addresses);
+
+    // TODO: rename to SampleAsync
     public async Task<Request> ConnectAsync(CancellationToken ct = default)
     {
-        await InitializeClientAsync(ct);
         using var client = new UdpClient();
         var endpoint = CreateEndpoint();
         var requestPacket = TransmitPacketHeader.CreateNewPacket();
@@ -41,7 +45,7 @@ public sealed class Client
         return new Request(requestPacket, receivePacket);
     }
 
-    internal static Packet<ReceivePacketHeader> ReadResponse(int receivedBytes, Memory<byte> buffer)
+    private static Packet<ReceivePacketHeader> ReadResponse(int receivedBytes, Memory<byte> buffer)
     {
         var destinationTimestamp = NtpTimestamp.Now;
         var actualReceived = buffer[..receivedBytes];
@@ -53,23 +57,6 @@ public sealed class Client
     private static Packet<ReceivePacketHeader> ReadResponse(SocketReceiveFromResult response, Memory<byte> buffer)
     {
         return ReadResponse(response.ReceivedBytes, buffer);
-    }
-
-    internal async Task InitializeClientAsync(CancellationToken ct = default)
-    {
-        if (_addresses.Any())
-        {
-            return;
-        }
-
-        Log.Information("Using host: {defaultServer}", _host);
-        _addresses.AddRange(await _getHostAddressesAsync(_host, ct));
-        if (_addresses.Count == 0)
-        {
-            throw new ApplicationException("Could not resolve any IP addresses.");
-        }
-
-        Log.Debug("Resolved {Count} IPs for host: {IpAddresses}", _addresses.Count, _addresses);
     }
 
     private IPEndPoint CreateEndpoint()

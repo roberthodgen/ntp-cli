@@ -2,6 +2,7 @@ namespace RobertHodgen.Ntp.Client;
 
 using Remote;
 
+// TODO rename to Sample
 public sealed class Request
 {
     public Packet<TransmitPacketHeader> ClientRequest { get; }
