@@ -1,5 +1,8 @@
 namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
+/// <summary>
+/// Base type for all NTP packet fields that can be encoded to bytes.
+/// </summary>
 public abstract record EncodableBase
 {
     /// <summary>

@@ -2,6 +2,7 @@
 
 using System.CommandLine;
 using RobertHodgen.Ntp.Client;
+using RobertHodgen.Ntp.Client.Remote;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -38,7 +39,7 @@ rootCommand.Add(checkCommand);
 checkCommand.Add(verboseOption);
 
 checkCommand.SetAction(
-    async (parseResult, cancellationToken) =>
+    async (parseResult, ct) =>
     {
         var verbose = parseResult.GetValue(verboseOption);
         if (verbose)
@@ -46,7 +47,9 @@ checkCommand.SetAction(
             levelSwitch.MinimumLevel = LogEventLevel.Verbose;
         }
 
-        var request = await new Client().ConnectAsync(cancellationToken);
+        var clock = new MonotonicClock();
+        var client = await Client.CreateForHostAsync("pool.ntp.org", clock, ct);
+        var request = await client.ConnectAsync(ct);
         
         Log.Debug("Server response headers:");
         request.ServerResponse.Header.LogDebugData();

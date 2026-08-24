@@ -9,6 +9,9 @@ public sealed record Precision : EncodableBase
 {
     public static Precision Microsecond => new (-18);
 
+    /// <summary>
+    /// Gets the precision value in log2 seconds.
+    /// </summary>
     public sbyte Value { get; }
 
     public override int SizeInBits => 8;
@@ -17,6 +20,13 @@ public sealed record Precision : EncodableBase
     {
         Value = value;
     }
+
+    /// <summary>
+    /// Creates a <see cref="Precision"/> from a raw byte value received on the wire.
+    /// </summary>
+    /// <param name="value">The raw precision byte.</param>
+    /// <returns>A new <see cref="Precision"/> instance.</returns>
+    public static Precision Reconstitute(sbyte value) => new (value);
 
     public override byte[] Encode() => [(byte)Value];
 

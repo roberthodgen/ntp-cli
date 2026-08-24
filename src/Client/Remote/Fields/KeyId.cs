@@ -7,6 +7,9 @@ public sealed record KeyId : EncodableBase
 {
     public static KeyId None => new (0);
 
+    /// <summary>
+    /// Gets the key identifier value.
+    /// </summary>
     public uint Value { get; }
 
     public override int SizeInBits => 32;

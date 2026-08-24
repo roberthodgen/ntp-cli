@@ -14,6 +14,9 @@ public sealed record MessageDigest : EncodableBase
 {
     public static MessageDigest None => new ([]);
 
+    /// <summary>
+    /// Gets the MD5 hash bytes.
+    /// </summary>
     public byte[] Value { get; }
 
     public override int SizeInBits => Value.Length * 8;
@@ -31,6 +34,11 @@ public sealed record MessageDigest : EncodableBase
         Value = value;
     }
 
+    /// <summary>
+    /// Creates a new message digest by computing the MD5 hash of the input data.
+    /// </summary>
+    /// <param name="input">The data to hash.</param>
+    /// <returns>A new <see cref="MessageDigest"/> instance containing the 16-byte MD5 hash.</returns>
     public static MessageDigest CreateNew(byte[] input) => new (MD5.HashData(input));
 
     public override byte[] Encode() => Value;

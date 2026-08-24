@@ -31,6 +31,13 @@ public sealed record LeapIndicator : EncodableBase
         Value = value;
     }
 
+    /// <summary>
+    /// Creates a <see cref="LeapIndicator"/> from a raw byte value received on the wire.
+    /// </summary>
+    /// <param name="value">The raw leap indicator byte (0-3).</param>
+    /// <returns>A new <see cref="LeapIndicator"/> instance.</returns>
+    public static LeapIndicator Reconstitute(byte value) => new (value);
+
     public override byte[] Encode() => [Value];
 
     public override string ToString() => Value switch

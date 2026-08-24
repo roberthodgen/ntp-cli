@@ -6,62 +6,87 @@ using Remote;
 using Remote.Fields;
 using Serilog;
 
+/// <summary>
+/// NTP client that sends requests to a remote NTP server and calculates clock offset and delay.
+/// </summary>
 public sealed class Client
 {
-    private const string DefaultServer = "pool.ntp.org";
+    private readonly IPEndPoint _endPoint;
+    private readonly IMonotonicClock _clock;
 
-    private readonly string _host;
-    private readonly List<IPAddress> _addresses = [];
-
-    public Client(string server = DefaultServer)
+    private Client(IPAddress ipAddress, IMonotonicClock clock)
     {
-        _host = server;
+        _endPoint = new IPEndPoint(ipAddress, 123);
+        _clock = clock;
     }
 
+    /// <summary>
+    /// Factory method to create a new <see cref="Client"/> instance from a server host name.
+    /// </summary>
+    /// <remarks>
+    /// Will use one of the IP addresses that is resolved for the host name. Prefer <see cref="CreateForIpAddress"/> for
+    /// connecting to multiple remote NTP servers.
+    /// </remarks>
+    public static async Task<Client> CreateForHostAsync(
+        string server,
+        IMonotonicClock clock,
+        CancellationToken ct = default)
+    {
+        var ipAddresses = await Dns.GetHostAddressesAsync(server, ct);
+        return new Client(
+            ipAddresses.FirstOrDefault() ?? throw new ApplicationException("Could not resolve any IP addresses."),
+            clock);
+    }
+
+    /// <summary>
+    /// Factory method to create a new <see cref="Client"/> instance from an IP address.
+    /// </summary>
+    /// <param name="clock">The monotonic clock to use for timestamp capture.</param>
+    /// <param name="address">The IP address of the NTP server.</param>
+    /// <returns>A new <see cref="Client"/> instance.</returns>
+    public static Client CreateForIpAddress(IMonotonicClock clock, IPAddress address) => new (address, clock);
+
+    /// <summary>
+    /// Sends an NTP request to the configured server and returns the request/response exchange.
+    /// </summary>
+    /// <param name="ct">Cancellation token for the network operation.</param>
+    /// <returns>A <see cref="Request"/> containing the exchange data with calculated offset and delay.</returns>
+    // TODO rename to SampleAsync
     public async Task<Request> ConnectAsync(CancellationToken ct = default)
     {
-        await InitializeClientAsync(ct);
         using var client = new UdpClient();
-        var endpoint = CreateEndpoint();
-        var requestPacket = TransmitPacketHeader.CreateNewPacket();
-        var sent = await client.Client.SendToAsync(requestPacket.Encode(), SocketFlags.None, endpoint, ct);
-        Log.Debug("Sent {Bytes} bytes to `{endpoint}`.", sent, endpoint);
+        var requestPacket = TransmitPacketHeader.CreateNewPacket(_clock);
+        var requestBytes = requestPacket.Encode();
+        var sent = await client.Client.SendToAsync(requestBytes, SocketFlags.None, _endPoint, ct);
+        Log.Debug("Sent {Bytes} bytes to `{endpoint}`.", sent, _endPoint);
 
         Memory<byte> buffer = new byte[48];
-        var response = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, endpoint, ct);
-        var receivePacket = ReadResponse(response, buffer);
-        Log.Debug("Received {Bytes} bytes from `{endpoint}`.", response.ReceivedBytes, endpoint);
+        var response = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, _endPoint, ct);
+        var receivePacket = ReadResponse(response, buffer, _clock, requestPacket.Header.TransmitTimestamp);
+        Log.Debug("Received {Bytes} bytes from `{endpoint}`.", response.ReceivedBytes, _endPoint);
         return new Request(requestPacket, receivePacket);
     }
 
-    private static Packet<ReceivePacketHeader> ReadResponse(SocketReceiveFromResult response, Memory<byte> buffer)
+    private static Packet<ReceivePacketHeader> ReadResponse(
+        int receivedBytes,
+        Memory<byte> buffer,
+        IMonotonicClock clock,
+        TransmitTimestamp requestTransmitTimestamp)
     {
-        var destinationTimestamp = NtpTimestamp.Now;
-        var actualReceived = buffer[..response.ReceivedBytes];
-        return ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
+        var destinationTimestamp = clock.Capture();
+        var actualReceived = buffer[..receivedBytes];
+        var receivePacket = ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
+        receivePacket.Header.ValidateKissODeath();
+        receivePacket.Header.ValidateOriginTimestamp(requestTransmitTimestamp);
+        return receivePacket;
     }
 
-    private async Task InitializeClientAsync(CancellationToken ct = default)
+    private static Packet<ReceivePacketHeader> ReadResponse(
+        SocketReceiveFromResult response,
+        Memory<byte> buffer,
+        IMonotonicClock clock,
+        TransmitTimestamp requestTransmitTimestamp)
     {
-        if (_addresses.Any())
-        {
-            return;
-        }
-
-        Log.Information("Using host: {defaultServer}", _host);
-        _addresses.AddRange(await Dns.GetHostAddressesAsync("pool.ntp.org", ct));
-        if (_addresses.Count == 0)
-        {
-            throw new ApplicationException("Could not resolve any IP addresses.");
-        }
-
-        Log.Debug("Resolved {Count} IPs for host: {IpAddresses}", _addresses.Count, _addresses);
-    }
-
-    private IPEndPoint CreateEndpoint()
-    {
-        var endpoint = new IPEndPoint(_addresses.First(), 123);
-        Log.Debug("Using: {Endpoint}", endpoint);
-        return endpoint;
+        return ReadResponse(response.ReceivedBytes, buffer, clock, requestTransmitTimestamp);
     }
 }

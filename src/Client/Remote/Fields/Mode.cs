@@ -35,6 +35,9 @@ public sealed record Mode : EncodableBase
 
     public static Mode ReservedForPrivateUse => new (7);
 
+    /// <summary>
+    /// Gets the mode value.
+    /// </summary>
     public byte Value { get; }
 
     public override int SizeInBits => 3;
@@ -43,6 +46,13 @@ public sealed record Mode : EncodableBase
     {
         Value = value;
     }
+
+    /// <summary>
+    /// Creates a <see cref="Mode"/> from a raw byte value received on the wire.
+    /// </summary>
+    /// <param name="value">The raw mode byte.</param>
+    /// <returns>A new <see cref="Mode"/> instance.</returns>
+    public static Mode Reconstitute(byte value) => new (value);
 
     public override byte[] Encode() => [Value];
 

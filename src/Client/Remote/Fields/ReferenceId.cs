@@ -48,6 +48,9 @@ public sealed record ReferenceId : EncodableBase
 {
     public static ReferenceId Empty => new ("    ");
 
+    /// <summary>
+    /// Gets the four-character reference identifier value.
+    /// </summary>
     public string Value { get; }
 
     public override int SizeInBits => 32;
@@ -62,6 +65,12 @@ public sealed record ReferenceId : EncodableBase
         Value = value;
     }
 
+    /// <summary>
+    /// Creates a reference identifier from an IPv4 address.
+    /// </summary>
+    /// <param name="address">The IPv4 address to convert.</param>
+    /// <returns>A new <see cref="ReferenceId"/> instance.</returns>
+    /// <exception cref="ArgumentException">Thrown when the address is not IPv4.</exception>
     public static ReferenceId CreateNewFromIpAddress(IPAddress address)
     {
         if (address.AddressFamily != AddressFamily.InterNetwork)
@@ -72,10 +81,25 @@ public sealed record ReferenceId : EncodableBase
         return new (Encoding.ASCII.GetString(address.GetAddressBytes()));
     }
 
+    /// <summary>
+    /// Creates a reference identifier from a four-character string.
+    /// </summary>
+    /// <param name="referenceId">A four-character string.</param>
+    /// <returns>A new <see cref="ReferenceId"/> instance.</returns>
     public static ReferenceId CreateNew(string referenceId) => new (referenceId);
 
+    /// <summary>
+    /// Creates a reference identifier from a four-character string received on the wire.
+    /// </summary>
+    /// <param name="referenceId">A four-character string.</param>
+    /// <returns>A new <see cref="ReferenceId"/> instance.</returns>
     public static ReferenceId Reconstitute(string referenceId) => new (referenceId);
 
+    /// <summary>
+    /// Parses a reference identifier from the given byte memory.
+    /// </summary>
+    /// <param name="memory">4 bytes of reference ID data.</param>
+    /// <returns>A new <see cref="ReferenceId"/> instance.</returns>
     public static ReferenceId Parse(Memory<byte> memory)
     {
         if (memory.Length != 4)
@@ -83,13 +107,7 @@ public sealed record ReferenceId : EncodableBase
             throw new ArgumentException("Reference ID must be exactly 4 characters.", nameof(memory));
         }
 
-        var referenceId = new Span<byte>(memory.ToArray());
-        if (BitConverter.IsLittleEndian)
-        {
-            referenceId.Reverse();
-        }
-
-        return new (Encoding.ASCII.GetString(referenceId));
+        return new (Encoding.ASCII.GetString(memory.Span));
     }
 
     public override byte[] Encode()

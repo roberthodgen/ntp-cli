@@ -55,22 +55,49 @@ using Serilog;
 /// </summary>
 public abstract record PacketHeaderBase
 {
+    /// <summary>
+    /// Gets the leap second indicator.
+    /// </summary>
     public LeapIndicator LeapIndicator { get; }
 
+    /// <summary>
+    /// Gets the NTP version number.
+    /// </summary>
     public VersionNumber VersionNumber { get; }
 
+    /// <summary>
+    /// Gets the protocol mode.
+    /// </summary>
     public Mode Mode { get; }
 
+    /// <summary>
+    /// Gets the stratum level of the server.
+    /// </summary>
     public Stratum Stratum { get; }
 
+    /// <summary>
+    /// Gets the maximum poll interval.
+    /// </summary>
     public Poll Poll { get; }
 
+    /// <summary>
+    /// Gets the clock precision.
+    /// </summary>
     public Precision Precision { get; }
 
+    /// <summary>
+    /// Gets the total round-trip delay to the reference clock.
+    /// </summary>
     public RootDelay RootDelay { get; }
 
+    /// <summary>
+    /// Gets the total dispersion to the reference clock.
+    /// </summary>
     public RootDispersion RootDispersion { get; }
 
+    /// <summary>
+    /// Gets the reference identifier of the server or reference clock.
+    /// </summary>
     public ReferenceId ReferenceId { get; }
 
     /// <summary>
@@ -93,6 +120,9 @@ public abstract record PacketHeaderBase
     /// </summary>
     public TransmitTimestamp TransmitTimestamp { get; }
 
+    /// <summary>
+    /// Gets a value indicating whether this is a Kiss-o'-Death packet (stratum 0).
+    /// </summary>
     public bool KissODeath => Stratum == Stratum.UnspecifiedOrInvalid;
 
     protected PacketHeaderBase(
@@ -125,6 +155,10 @@ public abstract record PacketHeaderBase
         TransmitTimestamp = transmitTimestamp;
     }
 
+    /// <summary>
+    /// Encodes the packet header to its wire-format byte representation.
+    /// </summary>
+    /// <returns>The encoded header bytes in network byte order.</returns>
     public byte[] Encode()
     {
         const int wordLengthInBits = 32; // 32-bit words
@@ -169,6 +203,9 @@ public abstract record PacketHeaderBase
         return words;
     }
 
+    /// <summary>
+    /// Logs all header field values at debug level using Serilog.
+    /// </summary>
     public void LogDebugData()
     {
         Log.Debug("Leap indicator: {LeapIndicator}", LeapIndicator);

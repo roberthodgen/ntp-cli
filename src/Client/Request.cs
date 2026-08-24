@@ -2,10 +2,24 @@ namespace RobertHodgen.Ntp.Client;
 
 using Remote;
 
+// TODO rename to Sample
+/// <summary>
+/// Represents a single NTP request/response exchange, providing calculations for clock offset and round-trip delay.
+/// </summary>
+/// <remarks>
+/// Contains both the client request packet and the server response packet.
+/// Use <see cref="Theta"/> for clock offset and <see cref="Delta"/> for round-trip delay.
+/// </remarks>
 public sealed class Request
 {
+    /// <summary>
+    /// Gets the client request packet that was sent to the NTP server.
+    /// </summary>
     public Packet<TransmitPacketHeader> ClientRequest { get; }
 
+    /// <summary>
+    /// Gets the server response packet received from the NTP server.
+    /// </summary>
     public Packet<ReceivePacketHeader> ServerResponse { get; }
 
     internal Request(Packet<TransmitPacketHeader> clientRequest, Packet<ReceivePacketHeader> serverResponse)
@@ -26,7 +40,7 @@ public sealed class Request
     public TimeSpan Theta()
     {
         // clientRequestPacketTransmissionTime
-        var t0 = ClientRequest.Header.OriginTimestamp.Value.ToDateTime();
+        var t0 = ServerResponse.Header.OriginTimestamp.Value.ToDateTime();
         
         // serverRequestPacketReceptionTime
         var t1 = ServerResponse.Header.ReceiveTimestamp.Value.ToDateTime();
@@ -56,7 +70,7 @@ public sealed class Request
     public TimeSpan Delta()
     {
         // clientRequestPacketTransmissionTime
-        var t0 = ClientRequest.Header.OriginTimestamp.Value.ToDateTime();
+        var t0 = ServerResponse.Header.OriginTimestamp.Value.ToDateTime();
         
         // serverRequestPacketReceptionTime
         var t1 = ServerResponse.Header.ReceiveTimestamp.Value.ToDateTime();

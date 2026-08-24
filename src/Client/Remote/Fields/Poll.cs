@@ -10,6 +10,9 @@ public sealed record Poll : EncodableBase
 
     public static Poll MaximumRecommended => new (10);
 
+    /// <summary>
+    /// Gets the poll interval value in log2 seconds.
+    /// </summary>
     public sbyte Value { get; }
 
     public override int SizeInBits => 8;
@@ -18,6 +21,13 @@ public sealed record Poll : EncodableBase
     {
         Value = value;
     }
+
+    /// <summary>
+    /// Creates a <see cref="Poll"/> from a raw byte value received on the wire.
+    /// </summary>
+    /// <param name="value">The raw poll interval byte.</param>
+    /// <returns>A new <see cref="Poll"/> instance.</returns>
+    public static Poll Reconstitute(sbyte value) => new (value);
 
     public override byte[] Encode() => [(byte)Value];
 
