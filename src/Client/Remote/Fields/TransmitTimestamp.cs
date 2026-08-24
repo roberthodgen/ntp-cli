@@ -1,5 +1,3 @@
-using RobertHodgen.Ntp.Client.Remote;
-
 namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
@@ -34,6 +32,14 @@ public sealed record TransmitTimestamp : EncodableBase
     /// <param name="memory">8 bytes of NTP timestamp data in network byte order.</param>
     /// <returns>A new <see cref="TransmitTimestamp"/> instance.</returns>
     public static TransmitTimestamp Parse(Memory<byte> memory) => new (NtpTimestamp.Parse(memory));
+
+    /// <summary>
+    /// Factory method to reconstitute a <see cref="TransmitTimestamp"/> from an <see cref="NtpTimestamp"/>.
+    /// </summary>
+    public static TransmitTimestamp Reconstitute(NtpTimestamp timestamp)
+    {
+        return new (timestamp);
+    }
 
     public override byte[] Encode() => Value.Encode();
 

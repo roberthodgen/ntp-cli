@@ -111,4 +111,27 @@ public sealed record ReceivePacketHeader : PacketHeaderBase
             throw new NtpKissODeathException(kissCode);
         }
     }
+
+    /// <summary>
+    /// Validates that a non-broadcast response echoes the request transmit timestamp in the origin timestamp field.
+    /// </summary>
+    /// <param name="requestTransmitTimestamp">The NtpTimestamp transmit timestamp sent in the client request.</param>
+    /// <exception cref="ApplicationException">Thrown when the response origin timestamp is zero or mismatched.</exception>
+    public void ValidateOriginTimestamp(TransmitTimestamp requestTransmitTimestamp)
+    {
+        if (Mode == Mode.Broadcast)
+        {
+            return;
+        }
+
+        if (OriginTimestamp.Value == NtpTimestamp.Zero)
+        {
+            throw new ApplicationException("Response origin timestamp is zero.");
+        }
+
+        if (OriginTimestamp.Value != requestTransmitTimestamp.Value)
+        {
+            throw new ApplicationException("Response origin timestamp does not match request transmit timestamp.");
+        }
+    }
 }

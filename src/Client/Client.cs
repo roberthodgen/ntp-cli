@@ -3,6 +3,7 @@
 using System.Net;
 using System.Net.Sockets;
 using Remote;
+using Remote.Fields;
 using Serilog;
 
 /// <summary>
@@ -60,7 +61,7 @@ public sealed class Client
 
         Memory<byte> buffer = new byte[48];
         var response = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, _endPoint, ct);
-        var receivePacket = ReadResponse(response, buffer, _clock);
+        var receivePacket = ReadResponse(response, buffer, _clock, requestPacket.Header.TransmitTimestamp);
         Log.Debug("Received {Bytes} bytes from `{endpoint}`.", response.ReceivedBytes, _endPoint);
         return new Request(requestPacket, receivePacket);
     }
@@ -68,20 +69,23 @@ public sealed class Client
     private static Packet<ReceivePacketHeader> ReadResponse(
         int receivedBytes,
         Memory<byte> buffer,
-        IMonotonicClock clock)
+        IMonotonicClock clock,
+        TransmitTimestamp requestTransmitTimestamp)
     {
         var destinationTimestamp = clock.Capture();
         var actualReceived = buffer[..receivedBytes];
         var receivePacket = ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
         receivePacket.Header.ValidateKissODeath();
+        receivePacket.Header.ValidateOriginTimestamp(requestTransmitTimestamp);
         return receivePacket;
     }
 
     private static Packet<ReceivePacketHeader> ReadResponse(
         SocketReceiveFromResult response,
         Memory<byte> buffer,
-        IMonotonicClock clock)
+        IMonotonicClock clock,
+        TransmitTimestamp requestTransmitTimestamp)
     {
-        return ReadResponse(response.ReceivedBytes, buffer, clock);
+        return ReadResponse(response.ReceivedBytes, buffer, clock, requestTransmitTimestamp);
     }
 }

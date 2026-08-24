@@ -12,8 +12,9 @@ dotnet add package RobertHodgen.Ntp.Client
 
 ```csharp
 using RobertHodgen.Ntp.Client;
+using RobertHodgen.Ntp.Client.Remote;
 
-var client = new Client("pool.ntp.org");
+var client = await Client.CreateForHostAsync("pool.ntp.org", new MonotonicClock());
 var request = await client.ConnectAsync();
 
 var offset = request.Theta();

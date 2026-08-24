@@ -33,6 +33,17 @@ public class NtpShortTests
     }
 
     [Fact]
+    public void FromTimeSpan_WithLastTickBeforeWholeSecond_DoesNotOverflowFraction()
+    {
+        var value = TimeSpan.FromTicks(TimeSpan.TicksPerSecond - 1);
+
+        var ntpShort = NtpShort.FromTimeSpan(value);
+
+        ((int)ntpShort.Seconds).ShouldBe(0);
+        ((int)ntpShort.Fraction).ShouldBe(65535);
+    }
+
+    [Fact]
     public void Zero_HasAllBitsZero()
     {
         ((int)NtpShort.Zero.Seconds).ShouldBe(0);

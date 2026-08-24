@@ -22,7 +22,18 @@ public class NtpTimestampTests
 
         var timestamp = NtpTimestamp.FromDateTime(value);
 
-        timestamp.Fraction.ShouldBe(Convert.ToUInt32(0.9999999d * 4294967296d));
+        timestamp.Fraction.ShouldBe((uint)Math.Floor(0.9999999d * 4294967296d));
+    }
+
+    [Fact]
+    public void FromDateTime_WithLastTickBeforeWholeSecond_DoesNotOverflowFraction()
+    {
+        var value = DateTime.UnixEpoch.AddTicks(TimeSpan.TicksPerSecond - 1);
+
+        var timestamp = NtpTimestamp.FromDateTime(value);
+
+        ((long)timestamp.Seconds).ShouldBe(2208988800L);
+        ((long)timestamp.Fraction).ShouldBe(4294966866L);
     }
 
     [Fact]

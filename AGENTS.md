@@ -59,3 +59,4 @@ all represent the closest possible approximation to the actual wire crossing tim
 # .NET Standards
 - All objects must be one of: `public sealed` or `internal`; private nested objects are allowed.
 - All public objects, public properties, and public methods must be documented via XML comments.
+- Should always prefer rich domain objects over primitives.

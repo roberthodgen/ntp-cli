@@ -43,8 +43,9 @@ public sealed record NtpShort : EncodableBase
     /// <returns>A new <see cref="NtpShort"/> instance.</returns>
     public static NtpShort FromTimeSpan(TimeSpan timeSpan)
     {
-        var seconds = Convert.ToUInt16(Math.Floor(timeSpan.TotalSeconds));
-        var fraction = Convert.ToUInt16((timeSpan.TotalSeconds - seconds) * FractionDivisor);
+        var seconds = Convert.ToUInt16(timeSpan.Ticks / TicksPerSecond);
+        var fractionTicks = timeSpan.Ticks % TicksPerSecond;
+        var fraction = Convert.ToUInt16((fractionTicks * 65536L) / TicksPerSecond);
         return new (seconds, fraction);
     }
 

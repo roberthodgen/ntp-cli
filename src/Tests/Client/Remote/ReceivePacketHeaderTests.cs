@@ -218,6 +218,56 @@ public class ReceivePacketHeaderTests
     }
 
     [Fact]
+    public void ValidateOriginTimestamp_WithMatchingTransmitTimestamp_DoesNotThrow()
+    {
+        var requestTransmitTimestamp = NtpTimestamp.FromDateTime(
+            new DateTime(2026, 6, 15, 12, 0, 0, DateTimeKind.Utc));
+        var response = CreateResponseWithOriginTimestamp(requestTransmitTimestamp);
+        var packet = ReceivePacketHeader.Parse(response, NtpTimestamp.Zero);
+
+        packet.Header.ValidateOriginTimestamp(TransmitTimestamp.Reconstitute(requestTransmitTimestamp));
+    }
+
+    [Fact]
+    public void ValidateOriginTimestamp_WithZeroOriginTimestamp_Throws()
+    {
+        var requestTransmitTimestamp = NtpTimestamp.FromDateTime(
+            new DateTime(2026, 6, 15, 12, 0, 0, DateTimeKind.Utc));
+        var response = CreateResponseWithOriginTimestamp(NtpTimestamp.Zero);
+        var packet = ReceivePacketHeader.Parse(response, NtpTimestamp.Zero);
+
+        Should.Throw<ApplicationException>(() =>
+            packet.Header.ValidateOriginTimestamp(TransmitTimestamp.Reconstitute(requestTransmitTimestamp)));
+    }
+
+    [Fact]
+    public void ValidateOriginTimestamp_WithMismatchedOriginTimestamp_Throws()
+    {
+        var requestTransmitTimestamp = NtpTimestamp.FromDateTime(
+            new DateTime(2026, 6, 15, 12, 0, 0, DateTimeKind.Utc));
+        var response = CreateResponseWithOriginTimestamp(requestTransmitTimestamp);
+        NtpTimestamp.FromDateTime(new DateTime(2026, 6, 15, 12, 0, 1, DateTimeKind.Utc))
+            .Encode()
+            .CopyTo(response, 24);
+        var packet = ReceivePacketHeader.Parse(response, NtpTimestamp.Zero);
+
+        Should.Throw<ApplicationException>(() =>
+            packet.Header.ValidateOriginTimestamp(TransmitTimestamp.Reconstitute(requestTransmitTimestamp)));
+    }
+
+    [Fact]
+    public void ValidateOriginTimestamp_WithBroadcastModeAndZeroOriginTimestamp_DoesNotThrow()
+    {
+        var requestTransmitTimestamp = NtpTimestamp.FromDateTime(
+            new DateTime(2026, 6, 15, 12, 0, 0, DateTimeKind.Utc));
+        var response = CreateResponseWithOriginTimestamp(NtpTimestamp.Zero);
+        response[0] = 0b_00_100_101;
+        var packet = ReceivePacketHeader.Parse(response, NtpTimestamp.Zero);
+
+        packet.Header.ValidateOriginTimestamp(TransmitTimestamp.Reconstitute(requestTransmitTimestamp));
+    }
+
+    [Fact]
     public void Parse_WithDestinationTimestamp_SetsDestinationTimestamp()
     {
         var response = CreateResponse();
@@ -255,6 +305,13 @@ public class ReceivePacketHeaderTests
     {
         var response = new byte[48];
         response[0] = 0b_00_100_100;
+        return response;
+    }
+
+    private static byte[] CreateResponseWithOriginTimestamp(NtpTimestamp originTimestamp)
+    {
+        var response = CreateResponse();
+        originTimestamp.Encode().CopyTo(response, 24);
         return response;
     }
 }

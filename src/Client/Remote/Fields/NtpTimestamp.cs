@@ -18,6 +18,8 @@ public sealed record NtpTimestamp : EncodableBase
 {
     private const uint UnixEpochSecondFromEra0 = 2208988800;
 
+    private const long TicksPerSecond = TimeSpan.TicksPerSecond;
+
     private const double FractionDivisor = 4294967296d;
 
     public static NtpTimestamp Zero => new (0, 0);
@@ -63,8 +65,9 @@ public sealed record NtpTimestamp : EncodableBase
     public static NtpTimestamp FromDateTime(DateTime time)
     {
         var diffFromEpoch = (time - DateTime.UnixEpoch);
-        var seconds = Convert.ToUInt32(Math.Floor(diffFromEpoch.TotalSeconds));
-        var fraction = Convert.ToUInt32((diffFromEpoch.TotalSeconds - seconds) * FractionDivisor);
+        var seconds = Convert.ToUInt32(diffFromEpoch.Ticks / TicksPerSecond);
+        var fractionTicks = diffFromEpoch.Ticks % TicksPerSecond;
+        var fraction = Convert.ToUInt32((fractionTicks * 4294967296L) / TicksPerSecond);
         return new (seconds + UnixEpochSecondFromEra0, fraction);
     }
 
