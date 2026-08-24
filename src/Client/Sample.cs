@@ -2,15 +2,14 @@ namespace RobertHodgen.Ntp.Client;
 
 using Remote;
 
-// TODO rename to Sample
 /// <summary>
-/// Represents a single NTP request/response exchange, providing calculations for clock offset and round-trip delay.
+/// Represents a single NTP sample, providing calculations for clock offset and round-trip delay.
 /// </summary>
 /// <remarks>
 /// Contains both the client request packet and the server response packet.
 /// Use <see cref="Theta"/> for clock offset and <see cref="Delta"/> for round-trip delay.
 /// </remarks>
-public sealed class Request
+public sealed class Sample
 {
     /// <summary>
     /// Gets the client request packet that was sent to the NTP server.
@@ -22,7 +21,7 @@ public sealed class Request
     /// </summary>
     public Packet<ReceivePacketHeader> ServerResponse { get; }
 
-    internal Request(Packet<TransmitPacketHeader> clientRequest, Packet<ReceivePacketHeader> serverResponse)
+    internal Sample(Packet<TransmitPacketHeader> clientRequest, Packet<ReceivePacketHeader> serverResponse)
     {
         ClientRequest = clientRequest;
         ServerResponse = serverResponse;

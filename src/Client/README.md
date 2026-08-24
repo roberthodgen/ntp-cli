@@ -15,10 +15,10 @@ using RobertHodgen.Ntp.Client;
 using RobertHodgen.Ntp.Client.Remote;
 
 var client = await Client.CreateForHostAsync("pool.ntp.org", new MonotonicClock());
-var request = await client.ConnectAsync();
+var sample = await client.SampleAsync();
 
-var offset = request.Theta();
-var roundTripDelay = request.Delta();
+var offset = sample.Theta();
+var roundTripDelay = sample.Delta();
 ```
 
 ## Features

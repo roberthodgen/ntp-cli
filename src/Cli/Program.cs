@@ -49,15 +49,15 @@ checkCommand.SetAction(
 
         var clock = new MonotonicClock();
         var client = await Client.CreateForHostAsync("pool.ntp.org", clock, ct);
-        var request = await client.ConnectAsync(ct);
+        var sample = await client.SampleAsync(ct);
         
         Log.Debug("Server response headers:");
-        request.ServerResponse.Header.LogDebugData();
+        sample.ServerResponse.Header.LogDebugData();
 
-        Log.Debug("Local receive timestamp: {receiveTimestamp:O}", request.ServerResponse.DestinationTimestamp);
+        Log.Debug("Local receive timestamp: {receiveTimestamp:O}", sample.ServerResponse.DestinationTimestamp);
 
-        Log.Information($"Theta: {request.Theta():c} (absolute time difference between client and server clocks)");
-        Log.Information($"Delta: {request.Delta():c} (round-trip delay)");
+        Log.Information($"Theta: {sample.Theta():c} (absolute time difference between client and server clocks)");
+        Log.Information($"Delta: {sample.Delta():c} (round-trip delay)");
 
     });
 
