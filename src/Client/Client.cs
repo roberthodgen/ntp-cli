@@ -29,7 +29,8 @@ public sealed class Client
         return new Client(await Dns.GetHostAddressesAsync(server, ct), clock);
     }
 
-    public static Client CreateWithIpAddresses(IMonotonicClock? clock, params IPAddress[] addresses) => new(addresses, clock);
+    public static Client CreateWithIpAddresses(params IPAddress[] addresses) => new(addresses);
+    public static Client CreateWithIpAddresses(IMonotonicClock clock, IPAddress[] addresses) => new(addresses, clock);
 
     // TODO: rename to SampleAsync
     public async Task<Request> ConnectAsync(CancellationToken ct = default)
