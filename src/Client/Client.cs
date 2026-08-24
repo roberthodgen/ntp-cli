@@ -3,52 +3,61 @@
 using System.Net;
 using System.Net.Sockets;
 using Remote;
-using Remote.Fields;
 using Serilog;
 
 public sealed class Client
 {
-    private const string DefaultServer = "pool.ntp.org";
+    private readonly IPEndPoint _endPoint;
+    private readonly IMonotonicClock _clock;
 
-    private readonly List<IPAddress> _addresses = [];
-    private readonly IMonotonicClock? _clock;
-
-    public Client(IPAddress[] addresses, IMonotonicClock? clock = null)
+    private Client(IPAddress ipAddress, IMonotonicClock clock)
     {
-        if (addresses.Length == 0)
-        {
-            throw new ApplicationException("Could not resolve any IP addresses.");
-        }
-
-        _addresses.AddRange(addresses);
+        _endPoint = new IPEndPoint(ipAddress, 123);
         _clock = clock;
     }
 
-    public static async Task<Client> CreateWithHostAsync(string server = DefaultServer, CancellationToken ct = default, IMonotonicClock? clock = null)
+    /// <summary>
+    /// Factory method to create a new <see cref="Client"/> instance from a server host name.
+    /// </summary>
+    /// <remarks>
+    /// Will use one of the IP addresses that is resolved for the host name. Prefer <see cref="CreateForIpAddress"/> for
+    /// connecting to multiple remote NTP servers.
+    /// </remarks>
+    public static async Task<Client> CreateForHostAsync(
+        string server,
+        IMonotonicClock clock,
+        CancellationToken ct = default)
     {
-        return new Client(await Dns.GetHostAddressesAsync(server, ct), clock);
+        var ipAddresses = await Dns.GetHostAddressesAsync(server, ct);
+        return new Client(
+            ipAddresses.FirstOrDefault() ?? throw new ApplicationException("Could not resolve any IP addresses."),
+            clock);
     }
 
-    public static Client CreateWithIpAddresses(params IPAddress[] addresses) => new(addresses);
-    public static Client CreateWithIpAddresses(IMonotonicClock clock, IPAddress[] addresses) => new(addresses, clock);
+    /// <summary>
+    /// Factory method to create a new <see cref="Client"/> instance from an IP address.
+    /// </summary>
+    public static Client CreateForIpAddress(IMonotonicClock clock, IPAddress address) => new (address, clock);
 
     // TODO: rename to SampleAsync
     public async Task<Request> ConnectAsync(CancellationToken ct = default)
     {
         using var client = new UdpClient();
-        var endpoint = CreateEndpoint();
-        var requestPacket = TransmitPacketHeader.CreateNewPacket(_clock ?? new MonotonicClock());
-        var sent = await client.Client.SendToAsync(requestPacket.Encode(), SocketFlags.None, endpoint, ct);
-        Log.Debug("Sent {Bytes} bytes to `{endpoint}`.", sent, endpoint);
+        var requestPacket = TransmitPacketHeader.CreateNewPacket(_clock);
+        var sent = await client.Client.SendToAsync(requestPacket.Encode(), SocketFlags.None, _endPoint, ct);
+        Log.Debug("Sent {Bytes} bytes to `{endpoint}`.", sent, _endPoint);
 
         Memory<byte> buffer = new byte[48];
-        var response = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, endpoint, ct);
-        var receivePacket = ReadResponse(response, buffer, _clock ?? new MonotonicClock());
-        Log.Debug("Received {Bytes} bytes from `{endpoint}`.", response.ReceivedBytes, endpoint);
+        var response = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, _endPoint, ct);
+        var receivePacket = ReadResponse(response, buffer, _clock);
+        Log.Debug("Received {Bytes} bytes from `{endpoint}`.", response.ReceivedBytes, _endPoint);
         return new Request(requestPacket, receivePacket);
     }
 
-    internal static Packet<ReceivePacketHeader> ReadResponse(int receivedBytes, Memory<byte> buffer, IMonotonicClock clock)
+    private static Packet<ReceivePacketHeader> ReadResponse(
+        int receivedBytes,
+        Memory<byte> buffer,
+        IMonotonicClock clock)
     {
         var destinationTimestamp = clock.Capture();
         var actualReceived = buffer[..receivedBytes];
@@ -57,15 +66,11 @@ public sealed class Client
         return receivePacket;
     }
 
-    private static Packet<ReceivePacketHeader> ReadResponse(SocketReceiveFromResult response, Memory<byte> buffer, IMonotonicClock clock)
+    private static Packet<ReceivePacketHeader> ReadResponse(
+        SocketReceiveFromResult response,
+        Memory<byte> buffer,
+        IMonotonicClock clock)
     {
         return ReadResponse(response.ReceivedBytes, buffer, clock);
-    }
-
-    private IPEndPoint CreateEndpoint()
-    {
-        var endpoint = new IPEndPoint(_addresses.First(), 123);
-        Log.Debug("Using: {Endpoint}", endpoint);
-        return endpoint;
     }
 }

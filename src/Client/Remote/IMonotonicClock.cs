@@ -5,5 +5,6 @@ using Fields;
 public interface IMonotonicClock
 {
     DateTime UtcNow { get; }
+
     NtpTimestamp Capture();
 }

@@ -39,7 +39,7 @@ rootCommand.Add(checkCommand);
 checkCommand.Add(verboseOption);
 
 checkCommand.SetAction(
-    async (parseResult, cancellationToken) =>
+    async (parseResult, ct) =>
     {
         var verbose = parseResult.GetValue(verboseOption);
         if (verbose)
@@ -48,8 +48,8 @@ checkCommand.SetAction(
         }
 
         var clock = new MonotonicClock();
-        var client = await Client.CreateWithHostAsync("pool.ntp.org", cancellationToken, clock);
-        var request = await client.ConnectAsync(cancellationToken);
+        var client = await Client.CreateForHostAsync("pool.ntp.org", clock, ct);
+        var request = await client.ConnectAsync(ct);
         
         Log.Debug("Server response headers:");
         request.ServerResponse.Header.LogDebugData();

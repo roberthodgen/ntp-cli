@@ -28,18 +28,34 @@ When writing or reviewing code in `src/Client/Remote`, verify the implementation
 - Remove local build outputs with `dotnet clean -c Release` and `rm -rf build`.
 
 ## NTP Timestamp Strategy
-The client request sends `OriginTimestamp.Zero` (all zeros) in the origin field.
-This is intentional: the server echoes back the origin timestamp in its response,
-and `Theta()`/`Delta()` read `t0` from `ServerResponse.Header.OriginTimestamp.Value`
-— the server's copy, not the client's original packet. The goal is to get as close
-to actual wire timestamps as possible. The client captures `t3` (destination) at
-receive time in `Client.ReadResponse()`, and `t1`/`t2` come from the server's
-response. `t0` comes from the server-echoed origin. If you modify this flow,
-verify that `t0`/`t1`/`t2`/`t3` all represent the closest possible approximation
-to the actual wire crossing times per RFC 5905 Section 8.
+Per RFC 5905 Section 7.3, the client request writes the client departure time to
+the transmit timestamp (`xmt`) field and leaves the origin timestamp (`org`) zero.
+The server copies the request's `xmt` into the response's `org` field, sets `rec`
+to the server receive time, and sets `xmt` to the server transmit time.
+
+`Theta()`/`Delta()` read `t0` from `ServerResponse.Header.OriginTimestamp.Value` —
+the server's echo of the client departure time. The client captures `t3` (`dst`) at
+receive time in `Client.ReadResponse()`, and `t1` (`rec`) and `t2` (`xmt`) come from
+the server's response. This mapping follows RFC 5905 Section 8:
+
+| Variable | RFC Name | Source |
+|----------|----------|--------|
+| t0 | org | Response origin (server echo of client request xmt) |
+| t1 | rec | Response receive timestamp |
+| t2 | xmt | Response transmit timestamp |
+| t3 | dst | Local destination timestamp (captured at receive) |
+
+The client also validates the response per RFC 5905 Section 8 bogus-packet check:
+it rejects the response if `response.org != request.xmt` (or `response.org` is zero
+for non-broadcast mode). If you modify this flow, verify that `t0`/`t1`/`t2`/`t3`
+all represent the closest possible approximation to the actual wire crossing times.
 
 ## Repo-Specific Gotchas
-- `build/` and legacy root `ntpc_*` binaries are build artifacts listed in `.gitignore`; do not edit or commit generated binaries.
+- Client-specific API changes must be documented in `src/Client/README.md` usage section.
 - The CLI project has `PublishSingleFile`, `SelfContained`, and runtime IDs set in `src/Cli/RobertHodgen.Ntp.Cli.csproj`; prefer `dotnet publish --runtime <rid>` when checking packaged behavior.
 - NTP numeric fields encode in network byte order; existing field types usually reverse `BitConverter` output on little-endian machines.
 - There is no CI, formatter config, lockfile, or repo-local OpenCode/Copilot/Cursor instruction file at the root; rely on the solution, project files, and `.github/workflows/release.yml` as sources of truth.
+
+# .NET Standards
+- All objects must be one of: `public sealed` or `internal`; private nested objects are allowed.
+- All public objects, public properties, and public methods must be documented via XML comments.
