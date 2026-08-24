@@ -27,6 +27,17 @@ When writing or reviewing code in `src/Client/Remote`, verify the implementation
 - Build the NuGet client package with `dotnet pack src/Client -c Release -o build /p:PackageVersion=<semver>`.
 - Remove local build outputs with `dotnet clean -c Release` and `rm -rf build`.
 
+## NTP Timestamp Strategy
+The client request sends `OriginTimestamp.Zero` (all zeros) in the origin field.
+This is intentional: the server echoes back the origin timestamp in its response,
+and `Theta()`/`Delta()` read `t0` from `ServerResponse.Header.OriginTimestamp.Value`
+— the server's copy, not the client's original packet. The goal is to get as close
+to actual wire timestamps as possible. The client captures `t3` (destination) at
+receive time in `Client.ReadResponse()`, and `t1`/`t2` come from the server's
+response. `t0` comes from the server-echoed origin. If you modify this flow,
+verify that `t0`/`t1`/`t2`/`t3` all represent the closest possible approximation
+to the actual wire crossing times per RFC 5905 Section 8.
+
 ## Repo-Specific Gotchas
 - `build/` and legacy root `ntpc_*` binaries are build artifacts listed in `.gitignore`; do not edit or commit generated binaries.
 - The CLI project has `PublishSingleFile`, `SelfContained`, and runtime IDs set in `src/Cli/RobertHodgen.Ntp.Cli.csproj`; prefer `dotnet publish --runtime <rid>` when checking packaged behavior.
