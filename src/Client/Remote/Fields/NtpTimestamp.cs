@@ -1,3 +1,5 @@
+using RobertHodgen.Ntp.Client.Remote;
+
 namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
@@ -22,10 +24,7 @@ public sealed record NtpTimestamp : EncodableBase
 
     public static NtpTimestamp Create(uint seconds, uint fraction) => new (seconds, fraction);
 
-    /// <summary>
-    /// Gets a NTP timestamp representing the current time.
-    /// </summary>
-    public static NtpTimestamp Now => FromDateTime(DateTime.UtcNow);
+    public static NtpTimestamp FromClock(IMonotonicClock clock) => clock.Capture();
 
     public uint Seconds { get; }
 

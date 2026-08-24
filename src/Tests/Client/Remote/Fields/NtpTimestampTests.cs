@@ -1,5 +1,6 @@
 namespace Roberthodgen.Ntp.Client.Tests.Remote.Fields;
 
+using RobertHodgen.Ntp.Client.Remote;
 using RobertHodgen.Ntp.Client.Remote.Fields;
 
 public class NtpTimestampTests
@@ -60,15 +61,15 @@ public class NtpTimestampTests
     }
 
     [Fact]
-    public void Now_ProducesTimestampCloseToCurrentUtcTime()
+    public void FromClock_ReturnsTimestampFromClock()
     {
+        var clock = new MonotonicClock();
         var before = DateTime.UtcNow.AddSeconds(-1);
-        var timestamp = NtpTimestamp.Now;
+        var ts = NtpTimestamp.FromClock(clock);
         var after = DateTime.UtcNow.AddSeconds(1);
 
-        var dateTime = timestamp.ToDateTime();
-        dateTime.ShouldBeGreaterThanOrEqualTo(before);
-        dateTime.ShouldBeLessThanOrEqualTo(after);
+        ts.ToDateTime().ShouldBeGreaterThanOrEqualTo(before);
+        ts.ToDateTime().ShouldBeLessThanOrEqualTo(after);
     }
 
     [Fact]

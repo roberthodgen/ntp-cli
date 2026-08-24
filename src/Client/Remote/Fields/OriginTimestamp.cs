@@ -1,3 +1,5 @@
+using RobertHodgen.Ntp.Client.Remote;
+
 namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
@@ -7,9 +9,9 @@ public sealed record OriginTimestamp : EncodableBase
 {
     public static OriginTimestamp Zero => new (NtpTimestamp.Zero);
 
-    public static OriginTimestamp Now => new (NtpTimestamp.Now);
+    public static OriginTimestamp Now => new (NtpTimestamp.FromClock(new MonotonicClock()));
 
-    public static OriginTimestamp SerializableNow => new (NtpTimestamp.Zero, () => NtpTimestamp.Now);
+    public static OriginTimestamp SerializableNow => new (NtpTimestamp.Zero, () => NtpTimestamp.FromClock(new MonotonicClock()));
 
     internal static OriginTimestamp CreateSerializableForTesting(Func<NtpTimestamp> timestampFactory) =>
         new (NtpTimestamp.Zero, timestampFactory);

@@ -47,7 +47,7 @@ public sealed class Client
 
     private static Packet<ReceivePacketHeader> ReadResponse(int receivedBytes, Memory<byte> buffer)
     {
-        var destinationTimestamp = NtpTimestamp.Now;
+        var destinationTimestamp = NtpTimestamp.FromClock(new MonotonicClock());
         var actualReceived = buffer[..receivedBytes];
         var receivePacket = ReceivePacketHeader.Parse(actualReceived, destinationTimestamp);
         receivePacket.Header.ValidateKissODeath();
