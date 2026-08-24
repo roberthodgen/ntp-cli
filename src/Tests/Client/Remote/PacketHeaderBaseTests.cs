@@ -108,7 +108,8 @@ public class PacketHeaderBaseTests
         var bytes = header.Encode();
 
         var timestamp = NtpTimestamp.Parse(bytes[24..32]);
-        ((long)timestamp.Seconds).ShouldNotBe(0L);
+        ((long)timestamp.Seconds).ShouldBe(0L);
+        ((long)timestamp.Fraction).ShouldBe(0L);
     }
 
     [Fact]
@@ -129,8 +130,7 @@ public class PacketHeaderBaseTests
         var bytes = header.Encode();
 
         var timestamp = NtpTimestamp.Parse(bytes[40..48]);
-        ((long)timestamp.Seconds).ShouldBe(0L);
-        ((long)timestamp.Fraction).ShouldBe(0L);
+        ((long)timestamp.Seconds).ShouldNotBe(0L);
     }
 
     [Fact]

@@ -26,7 +26,7 @@ public sealed class Request
     public TimeSpan Theta()
     {
         // clientRequestPacketTransmissionTime
-        var t0 = ClientRequest.Header.OriginTimestamp.Value.ToDateTime();
+        var t0 = ServerResponse.Header.OriginTimestamp.Value.ToDateTime();
         
         // serverRequestPacketReceptionTime
         var t1 = ServerResponse.Header.ReceiveTimestamp.Value.ToDateTime();
@@ -56,7 +56,7 @@ public sealed class Request
     public TimeSpan Delta()
     {
         // clientRequestPacketTransmissionTime
-        var t0 = ClientRequest.Header.OriginTimestamp.Value.ToDateTime();
+        var t0 = ServerResponse.Header.OriginTimestamp.Value.ToDateTime();
         
         // serverRequestPacketReceptionTime
         var t1 = ServerResponse.Header.ReceiveTimestamp.Value.ToDateTime();

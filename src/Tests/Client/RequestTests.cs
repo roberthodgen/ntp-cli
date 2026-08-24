@@ -24,6 +24,25 @@ public class RequestTests
     }
 
     [Fact]
+    public void Theta_UsesResponseOriginTimestampAsClientTransmitTime()
+    {
+        var baseTime = new DateTime(2026, 6, 15, 12, 0, 0, DateTimeKind.Utc);
+
+        var t0Ntp = NtpTimestamp.FromDateTime(baseTime);
+        var t1Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(10));
+        var t2Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(20));
+        var t3Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(30));
+
+        var clientPacket = TransmitPacketHeader.CreateNewPacket();
+        var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, t3Ntp);
+        var request = CreateRequestWithPackets(clientPacket, serverPacket);
+
+        var theta = request.Theta();
+
+        theta.TotalMilliseconds.ShouldBe(0.0, 1);
+    }
+
+    [Fact]
     public void Theta_WithPositiveOffset_ReturnsCorrectOffset()
     {
         var baseTime = new DateTime(2026, 6, 15, 12, 0, 0, DateTimeKind.Utc);
@@ -68,6 +87,25 @@ public class RequestTests
         var t3 = baseTime.AddMilliseconds(30);
 
         var request = CreateRequest(t0, t1, t2, t3);
+
+        var delta = request.Delta();
+
+        delta.TotalMilliseconds.ShouldBe(20.0, 1);
+    }
+
+    [Fact]
+    public void Delta_UsesResponseOriginTimestampAsClientTransmitTime()
+    {
+        var baseTime = new DateTime(2026, 6, 15, 12, 0, 0, DateTimeKind.Utc);
+
+        var t0Ntp = NtpTimestamp.FromDateTime(baseTime);
+        var t1Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(10));
+        var t2Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(20));
+        var t3Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(30));
+
+        var clientPacket = TransmitPacketHeader.CreateNewPacket();
+        var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, t3Ntp);
+        var request = CreateRequestWithPackets(clientPacket, serverPacket);
 
         var delta = request.Delta();
 

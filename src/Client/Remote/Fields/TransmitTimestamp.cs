@@ -7,6 +7,8 @@ public sealed record TransmitTimestamp : EncodableBase
 {
     public static TransmitTimestamp Zero => new (NtpTimestamp.Zero);
 
+    public static TransmitTimestamp Now => new (NtpTimestamp.Now);
+
     public NtpTimestamp Value { get; }
 
     public override int SizeInBits => Value.SizeInBits;
