@@ -16,7 +16,7 @@ using Fields;
 /// </remarks>
 public sealed record TransmitPacketHeader : PacketHeaderBase
 {
-    private TransmitPacketHeader()
+    private TransmitPacketHeader(IMonotonicClock clock)
         : base(
             LeapIndicator.Unknown,
             VersionNumber.Four,
@@ -27,15 +27,15 @@ public sealed record TransmitPacketHeader : PacketHeaderBase
             RootDelay.Zero,
             RootDispersion.Zero,
             ReferenceId.Empty,
-            ReferenceTimestamp.Zero, // TODO never checked
+            ReferenceTimestamp.Zero,
             OriginTimestamp.Zero,
             ReceiveTimestamp.Zero,
-            TransmitTimestamp.Now)
+            TransmitTimestamp.FromClock(clock))
     {
     }
 
-    public static Packet<TransmitPacketHeader> CreateNewPacket()
+    public static Packet<TransmitPacketHeader> CreateNewPacket(IMonotonicClock clock)
     {
-        return Packet<TransmitPacketHeader>.CreateNewFromHeader(new TransmitPacketHeader());
+        return Packet<TransmitPacketHeader>.CreateNewFromHeader(new TransmitPacketHeader(clock));
     }
 }
