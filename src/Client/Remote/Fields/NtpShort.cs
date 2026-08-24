@@ -61,19 +61,19 @@ public sealed record NtpShort : EncodableBase
             throw new ArgumentException("NTP short format must be 4 bytes long.", nameof(memory));
         }
 
-        var seconds = new Span<byte>(memory[..2].ToArray());
+        var seconds = memory[..2].Span;
         if (BitConverter.IsLittleEndian)
         {
             seconds.Reverse();
         }
 
-        var precision = new Span<byte>(memory[2..4].ToArray());
+        var fraction = memory[2..4].Span;
         if (BitConverter.IsLittleEndian)
         {
-            precision.Reverse();
+            fraction.Reverse();
         }
 
-        return new (BitConverter.ToUInt16(seconds), BitConverter.ToUInt16(precision));
+        return new (BitConverter.ToUInt16(seconds), BitConverter.ToUInt16(fraction));
     }
 
     public override byte[] Encode()

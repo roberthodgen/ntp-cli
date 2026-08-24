@@ -1,5 +1,3 @@
-using RobertHodgen.Ntp.Client.Remote;
-
 namespace RobertHodgen.Ntp.Client.Remote.Fields;
 
 /// <summary>
@@ -83,19 +81,19 @@ public sealed record NtpTimestamp : EncodableBase
             throw new ArgumentException("NTP Timestamp format must be 8 bytes long.", nameof(memory));
         }
 
-        var seconds = new Span<byte>(memory[..4].ToArray());
+        var seconds = memory[..4].Span;
         if (BitConverter.IsLittleEndian)
         {
             seconds.Reverse();
         }
 
-        var precision = new Span<byte>(memory[4..8].ToArray());
+        var fraction = memory[4..8].Span;
         if (BitConverter.IsLittleEndian)
         {
-            precision.Reverse();
+            fraction.Reverse();
         }
 
-        return new (BitConverter.ToUInt32(seconds), BitConverter.ToUInt32(precision));
+        return new (BitConverter.ToUInt32(seconds), BitConverter.ToUInt32(fraction));
     }
 
     public override byte[] Encode()

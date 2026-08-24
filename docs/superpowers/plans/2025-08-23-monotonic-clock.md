@@ -130,7 +130,7 @@ using Fields;
 public sealed class MonotonicClock : IMonotonicClock
 {
     static readonly uint NtpFractionDivisor = 4294967296u;
-    static readonly double TicksPerNtpFraction = (double)Stopwatch.Frequency / NtpFractionDivisor;
+    static readonly double NtpFractionPerTick = NtpFractionDivisor / (double)Stopwatch.Frequency;
 
     readonly DateTime _referenceTime;
     readonly uint _referenceSeconds;
@@ -153,7 +153,7 @@ public sealed class MonotonicClock : IMonotonicClock
         var elapsedTicks = _stopwatch.ElapsedTicks;
         var elapsedSeconds = (uint)(elapsedTicks / (long)Stopwatch.Frequency);
         var remainingTicks = elapsedTicks % (long)Stopwatch.Frequency;
-        var elapsedFraction = (uint)(remainingTicks * TicksPerNtpFraction);
+        var elapsedFraction = (uint)(remainingTicks * NtpFractionPerTick);
 
         var totalFraction = (ulong)_referenceFraction + elapsedFraction;
         var carrySeconds = totalFraction / NtpFractionDivisor;
@@ -470,25 +470,25 @@ git add src/Cli/Program.cs
 git commit -m "feat: CLI creates MonotonicClock and injects into Client"
 ```
 
-### Task 8: Create FakeMonotonicClock for test isolation
+### Task 8: Create FakeClock for test isolation
 
 **Files:**
-- Create: `src/Tests/Client/FakeMonotonicClock.cs`
+- Create: `src/Tests/Client/FakeClock.cs`
 
 **Interfaces:**
 - Consumes: `IMonotonicClock`
-- Produces: `FakeMonotonicClock` with settable `Time` property
+- Produces: `FakeClock` with settable `Time` property
 
-- [ ] **Step 1: Create FakeMonotonicClock**
+- [ ] **Step 1: Create FakeClock**
 
 ```csharp
-// src/Tests/Client/FakeMonotonicClock.cs
+// src/Tests/Client/FakeClock.cs
 namespace Roberthodgen.Ntp.Client.Tests;
 
 using RobertHodgen.Ntp.Client.Remote;
 using RobertHodgen.Ntp.Client.Remote.Fields;
 
-public class FakeMonotonicClock : IMonotonicClock
+public class FakeClock : IMonotonicClock
 {
     public DateTime Time { get; set; } = new(2026, 8, 23, 12, 0, 0, DateTimeKind.Utc);
 
@@ -500,8 +500,8 @@ public class FakeMonotonicClock : IMonotonicClock
 - [ ] **Step 2: Commit**
 
 ```bash
-git add src/Tests/Client/FakeMonotonicClock.cs
-git commit -m "test: add FakeMonotonicClock for deterministic testing"
+git add src/Tests/Client/FakeClock.cs
+git commit -m "test: add FakeClock for deterministic testing"
 ```
 
 ### Task 9: Final verification — full test suite and build
