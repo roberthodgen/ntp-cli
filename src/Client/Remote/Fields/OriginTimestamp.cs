@@ -28,5 +28,7 @@ public sealed record OriginTimestamp : EncodableBase
 
     public override byte[] Encode() => (_timestampFactory?.Invoke() ?? Value).Encode();
 
-    public override string ToString() => Value.ToString();
+    public override string ToString() => _timestampFactory is not null
+        ? "(deferred — encoded at Encode() time)"
+        : Value.ToString();
 }
