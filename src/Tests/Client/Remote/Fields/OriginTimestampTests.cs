@@ -1,20 +1,21 @@
 namespace Roberthodgen.Ntp.Client.Tests.Remote.Fields;
 
+using RobertHodgen.Ntp.Client.Remote;
 using RobertHodgen.Ntp.Client.Remote.Fields;
 
 public class OriginTimestampTests
 {
     [Fact]
-    public void Now_ProducesNonZeroTimestamp()
+    public void FromClock_ProducesNonZeroTimestamp()
     {
-        var now = OriginTimestamp.Now;
+        var now = OriginTimestamp.FromClock(new MonotonicClock());
         ((long)now.Value.Seconds).ShouldNotBe(0L);
     }
 
     [Fact]
-    public void SerializableNow_HasZeroValueButDeferredFactory()
+    public void SerializableFromClock_HasZeroValueButDeferredFactory()
     {
-        var serializable = OriginTimestamp.SerializableNow;
+        var serializable = OriginTimestamp.SerializableFromClock(new MonotonicClock());
         ((long)serializable.Value.Seconds).ShouldBe(0L);
         serializable.ToString().ShouldContain("deferred");
     }
@@ -54,7 +55,7 @@ public class OriginTimestampTests
     public void Encode_WithDeferredFactory_EncodesCurrentTime()
     {
         var before = DateTime.UtcNow;
-        var serializable = OriginTimestamp.SerializableNow;
+        var serializable = OriginTimestamp.SerializableFromClock(new MonotonicClock());
         var encoded = serializable.Encode();
         var after = DateTime.UtcNow;
 

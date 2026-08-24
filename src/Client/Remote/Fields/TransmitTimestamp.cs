@@ -9,7 +9,7 @@ public sealed record TransmitTimestamp : EncodableBase
 {
     public static TransmitTimestamp Zero => new (NtpTimestamp.Zero);
 
-    public static TransmitTimestamp Now => new (NtpTimestamp.FromClock(new MonotonicClock()));
+    public static TransmitTimestamp FromClock(IMonotonicClock clock) => new (NtpTimestamp.FromClock(clock));
 
     public NtpTimestamp Value { get; }
 

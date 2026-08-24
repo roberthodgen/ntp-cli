@@ -9,9 +9,9 @@ public sealed record OriginTimestamp : EncodableBase
 {
     public static OriginTimestamp Zero => new (NtpTimestamp.Zero);
 
-    public static OriginTimestamp Now => new (NtpTimestamp.FromClock(new MonotonicClock()));
+    public static OriginTimestamp FromClock(IMonotonicClock clock) => new (NtpTimestamp.FromClock(clock));
 
-    public static OriginTimestamp SerializableNow => new (NtpTimestamp.Zero, () => NtpTimestamp.FromClock(new MonotonicClock()));
+    public static OriginTimestamp SerializableFromClock(IMonotonicClock clock) => new (NtpTimestamp.Zero, () => clock.Capture());
 
     internal static OriginTimestamp CreateSerializableForTesting(Func<NtpTimestamp> timestampFactory) =>
         new (NtpTimestamp.Zero, timestampFactory);
