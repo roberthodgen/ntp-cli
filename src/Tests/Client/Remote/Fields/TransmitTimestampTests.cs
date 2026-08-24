@@ -1,5 +1,7 @@
 namespace Roberthodgen.Ntp.Client.Tests.Remote.Fields;
 
+using Roberthodgen.Ntp.Client.Tests;
+using RobertHodgen.Ntp.Client.Remote;
 using RobertHodgen.Ntp.Client.Remote.Fields;
 
 public class TransmitTimestampTests
@@ -35,5 +37,47 @@ public class TransmitTimestampTests
 
         bytes.Length.ShouldBe(8);
         bytes.ShouldAllBe(b => b == 0);
+    }
+
+    [Fact]
+    public void FromClock_ValueBeforeEncode_Throws()
+    {
+        var timestamp = TransmitTimestamp.FromClock(new FakeClock());
+
+        Should.Throw<ApplicationException>(() => timestamp.Value)
+            .Message.ShouldBe("transmit timestamp accessed before being sent");
+    }
+
+    [Fact]
+    public void FromClock_Encode_CapturesTimestampFromClock()
+    {
+        var clock = new FakeClock
+        {
+            Time = new DateTime(2026, 8, 24, 14, 17, 1, 123, DateTimeKind.Utc)
+        };
+        var timestamp = TransmitTimestamp.FromClock(clock);
+
+        var bytes = timestamp.Encode();
+
+        var expected = NtpTimestamp.FromDateTime(clock.Time);
+        NtpTimestamp.Parse(bytes).ShouldBe(expected);
+        timestamp.Value.ShouldBe(expected);
+    }
+
+    [Fact]
+    public void FromClock_EncodeTwice_ReusesFirstCapturedTimestamp()
+    {
+        var clock = new FakeClock
+        {
+            Time = new DateTime(2026, 8, 24, 14, 17, 1, DateTimeKind.Utc)
+        };
+        var timestamp = TransmitTimestamp.FromClock(clock);
+
+        var firstBytes = timestamp.Encode();
+        clock.Time = clock.Time.AddSeconds(1);
+        var secondBytes = timestamp.Encode();
+
+        secondBytes.ShouldBe(firstBytes);
+        timestamp.Value.ShouldBe(NtpTimestamp.Parse(firstBytes));
     }
 }

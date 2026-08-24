@@ -7,12 +7,10 @@ using Fields;
 /// </summary>
 /// <remarks>
 /// OriginTimestamp.Zero is intentional. The client request sends a zero origin
-/// timestamp on the wire; the server fills in t0 (its reception time) and echoes
-/// it back in the response's origin field. Theta()/Delta() read t0 from
-/// ServerResponse.Header.OriginTimestamp — not from the client request — so the
-/// server-echoed value is what matters. Using SerializableNow would encode a
-/// client-side timestamp that drifts from the actual wire transmit time,
-/// degrading accuracy. See AGENTS.md for details.
+/// timestamp on the wire and writes client departure time to the request transmit
+/// timestamp. The server echoes that request transmit timestamp back in the
+/// response's origin field, which becomes T1 for Theta()/Delta() per RFC 5905
+/// Section 8. See AGENTS.md for the Encode-time request xmt capture contract.
 /// </remarks>
 public sealed record TransmitPacketHeader : PacketHeaderBase
 {

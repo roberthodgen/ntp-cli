@@ -15,9 +15,7 @@ public sealed class MonotonicClock : IMonotonicClock
     private const ulong NtpFractionDivisor = 4294967296ul;
     private static readonly double NtpFractionPerTick = (double)NtpFractionDivisor / Stopwatch.Frequency;
 
-    private readonly DateTime _referenceTime;
-    private readonly uint _referenceSeconds;
-    private readonly uint _referenceFraction;
+    private readonly NtpTimestamp _referenceTime;
     private readonly Stopwatch _stopwatch;
 
     /// <summary>
@@ -27,18 +25,16 @@ public sealed class MonotonicClock : IMonotonicClock
     {
         #region Time Sensitive
 
-        _referenceTime = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
         _stopwatch = Stopwatch.StartNew();
 
         #endregion
 
-        var ntp = NtpTimestamp.FromDateTime(_referenceTime);
-        _referenceSeconds = ntp.Seconds;
-        _referenceFraction = ntp.Fraction;
+        _referenceTime = NtpTimestamp.FromDateTime(now);
     }
 
     /// <inheritdoc />
-    public DateTime UtcNow => _referenceTime + _stopwatch.Elapsed;
+    public DateTime UtcNow => _referenceTime.ToDateTime() + _stopwatch.Elapsed;
 
     /// <inheritdoc />
     public NtpTimestamp Capture()
@@ -48,11 +44,11 @@ public sealed class MonotonicClock : IMonotonicClock
         var remainingTicks = elapsedTicks % Stopwatch.Frequency;
         var elapsedFraction = (uint)(remainingTicks * NtpFractionPerTick);
 
-        var totalFraction = (ulong)_referenceFraction + elapsedFraction;
+        var totalFraction = (ulong)_referenceTime.Fraction + elapsedFraction;
         var carrySeconds = totalFraction / NtpFractionDivisor;
         var finalFraction = (uint)(totalFraction % NtpFractionDivisor);
 
-        var finalSeconds = _referenceSeconds + elapsedSeconds + (uint)carrySeconds;
+        var finalSeconds = _referenceTime.Seconds + elapsedSeconds + (uint)carrySeconds;
 
         return NtpTimestamp.Create(finalSeconds, finalFraction);
     }

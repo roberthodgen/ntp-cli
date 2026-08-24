@@ -33,6 +33,13 @@ the transmit timestamp (`xmt`) field and leaves the origin timestamp (`org`) zer
 The server copies the request's `xmt` into the response's `org` field, sets `rec`
 to the server receive time, and sets `xmt` to the server transmit time.
 
+Request `xmt` capture is intentionally deferred until `Packet.Encode()` because
+encoding is the last client-controlled point before `SendToAsync` hands bytes to
+the socket. `TransmitTimestamp.FromClock(clock)` creates a deferred timestamp;
+`Encode()` captures and caches the value, and `TransmitTimestamp.Value` must not
+be read before encoding. Do not re-encode the same request packet for multiple
+sends, because the cached `xmt` value represents the first encoded send attempt.
+
 `Theta()`/`Delta()` read `t0` from `ServerResponse.Header.OriginTimestamp.Value` —
 the server's echo of the client departure time. The client captures `t3` (`dst`) at
 receive time in `Client.ReadResponse()`, and `t1` (`rec`) and `t2` (`xmt`) come from
@@ -49,6 +56,9 @@ The client also validates the response per RFC 5905 Section 8 bogus-packet check
 it rejects the response if `response.org != request.xmt` (or `response.org` is zero
 for non-broadcast mode). If you modify this flow, verify that `t0`/`t1`/`t2`/`t3`
 all represent the closest possible approximation to the actual wire crossing times.
+Because validation compares `response.org` to the cached request `xmt`, any send
+path must call `requestPacket.Encode()` before passing `requestPacket.Header.TransmitTimestamp`
+to response validation.
 
 ## Repo-Specific Gotchas
 - Client-specific API changes must be documented in `src/Client/README.md` usage section.

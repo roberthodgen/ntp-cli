@@ -13,14 +13,6 @@ public class OriginTimestampTests
     }
 
     [Fact]
-    public void SerializableFromClock_HasZeroValueButDeferredFactory()
-    {
-        var serializable = OriginTimestamp.SerializableFromClock(new MonotonicClock());
-        ((long)serializable.Value.Seconds).ShouldBe(0L);
-        serializable.ToString().ShouldContain("deferred");
-    }
-
-    [Fact]
     public void SizeInBits_IsSixtyFour()
     {
         var parsed = OriginTimestamp.Parse(new byte[8]);
@@ -51,17 +43,4 @@ public class OriginTimestampTests
         ((long)roundTripped.Fraction).ShouldBe((long)timestamp.Fraction);
     }
 
-    [Fact]
-    public void Encode_WithDeferredFactory_EncodesCurrentTime()
-    {
-        var before = DateTime.UtcNow;
-        var serializable = OriginTimestamp.SerializableFromClock(new MonotonicClock());
-        var encoded = serializable.Encode();
-        var after = DateTime.UtcNow;
-
-        var decoded = NtpTimestamp.Parse(encoded);
-        var dateTime = decoded.ToDateTime();
-        dateTime.ShouldBeGreaterThanOrEqualTo(before);
-        dateTime.ShouldBeLessThanOrEqualTo(after.AddSeconds(1));
-    }
 }

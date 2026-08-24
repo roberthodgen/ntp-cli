@@ -56,7 +56,8 @@ public sealed class Client
     {
         using var client = new UdpClient();
         var requestPacket = TransmitPacketHeader.CreateNewPacket(_clock);
-        var sent = await client.Client.SendToAsync(requestPacket.Encode(), SocketFlags.None, _endPoint, ct);
+        var requestBytes = requestPacket.Encode();
+        var sent = await client.Client.SendToAsync(requestBytes, SocketFlags.None, _endPoint, ct);
         Log.Debug("Sent {Bytes} bytes to `{endpoint}`.", sent, _endPoint);
 
         Memory<byte> buffer = new byte[48];
