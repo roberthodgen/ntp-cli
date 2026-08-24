@@ -33,7 +33,7 @@ public class RequestTests
         var t2Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(20));
         var t3Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(30));
 
-        var clientPacket = TransmitPacketHeader.CreateNewPacket();
+        var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, t3Ntp);
         var request = CreateRequestWithPackets(clientPacket, serverPacket);
 
@@ -103,7 +103,7 @@ public class RequestTests
         var t2Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(20));
         var t3Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(30));
 
-        var clientPacket = TransmitPacketHeader.CreateNewPacket();
+        var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, t3Ntp);
         var request = CreateRequestWithPackets(clientPacket, serverPacket);
 
@@ -155,7 +155,7 @@ public class RequestTests
         var t1Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(10));
         var t2Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(20));
 
-        var clientPacket = TransmitPacketHeader.CreateNewPacket();
+        var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, (NtpTimestamp?)null);
 
         var request = CreateRequestWithPackets(clientPacket, serverPacket);
@@ -172,7 +172,7 @@ public class RequestTests
         var t1Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(10));
         var t2Ntp = NtpTimestamp.FromDateTime(baseTime.AddMilliseconds(20));
 
-        var clientPacket = TransmitPacketHeader.CreateNewPacket();
+        var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, (NtpTimestamp?)null);
 
         var request = CreateRequestWithPackets(clientPacket, serverPacket);
@@ -188,7 +188,7 @@ public class RequestTests
         var t2Ntp = NtpTimestamp.FromDateTime(t2);
         var t3Ntp = NtpTimestamp.FromDateTime(t3);
 
-        var clientPacket = TransmitPacketHeader.CreateNewPacket();
+        var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var originField = typeof(PacketHeaderBase).GetField(
             "<OriginTimestamp>k__BackingField",
             BindingFlags.NonPublic | BindingFlags.Instance)!;
