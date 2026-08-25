@@ -4,7 +4,7 @@ using RobertHodgen.Ntp.Client.Remote;
 using RobertHodgen.Ntp.Client.Remote.Fields;
 using System.Reflection;
 
-public class RequestTests
+public class SampleTests
 {
     [Fact]
     public void Theta_WithSymmetricDelay_ReturnsZeroOffset()
@@ -16,9 +16,9 @@ public class RequestTests
         var t2 = baseTime.AddMilliseconds(20);
         var t3 = baseTime.AddMilliseconds(30);
 
-        var request = CreateRequest(t0, t1, t2, t3);
+        var sample = CreateSample(t0, t1, t2, t3);
 
-        var theta = request.Theta();
+        var theta = sample.Theta();
 
         theta.TotalMilliseconds.ShouldBe(0.0, 1);
     }
@@ -35,9 +35,9 @@ public class RequestTests
 
         var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, t3Ntp);
-        var request = CreateRequestWithPackets(clientPacket, serverPacket);
+        var sample = CreateSampleWithPackets(clientPacket, serverPacket);
 
-        var theta = request.Theta();
+        var theta = sample.Theta();
 
         theta.TotalMilliseconds.ShouldBe(0.0, 1);
     }
@@ -52,9 +52,9 @@ public class RequestTests
         var t2 = baseTime.AddMilliseconds(20);
         var t3 = baseTime.AddMilliseconds(25);
 
-        var request = CreateRequest(t0, t1, t2, t3);
+        var sample = CreateSample(t0, t1, t2, t3);
 
-        var theta = request.Theta();
+        var theta = sample.Theta();
 
         theta.TotalMilliseconds.ShouldBe(2.5, 1);
     }
@@ -69,9 +69,9 @@ public class RequestTests
         var t2 = baseTime.AddMilliseconds(15);
         var t3 = baseTime.AddMilliseconds(30);
 
-        var request = CreateRequest(t0, t1, t2, t3);
+        var sample = CreateSample(t0, t1, t2, t3);
 
-        var theta = request.Theta();
+        var theta = sample.Theta();
 
         theta.TotalMilliseconds.ShouldBe(-2.5, 1);
     }
@@ -86,9 +86,9 @@ public class RequestTests
         var t2 = baseTime.AddMilliseconds(20);
         var t3 = baseTime.AddMilliseconds(30);
 
-        var request = CreateRequest(t0, t1, t2, t3);
+        var sample = CreateSample(t0, t1, t2, t3);
 
-        var delta = request.Delta();
+        var delta = sample.Delta();
 
         delta.TotalMilliseconds.ShouldBe(20.0, 1);
     }
@@ -105,9 +105,9 @@ public class RequestTests
 
         var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, t3Ntp);
-        var request = CreateRequestWithPackets(clientPacket, serverPacket);
+        var sample = CreateSampleWithPackets(clientPacket, serverPacket);
 
-        var delta = request.Delta();
+        var delta = sample.Delta();
 
         delta.TotalMilliseconds.ShouldBe(20.0, 1);
     }
@@ -122,9 +122,9 @@ public class RequestTests
         var t2 = baseTime.AddMilliseconds(10);
         var t3 = baseTime.AddMilliseconds(30);
 
-        var request = CreateRequest(t0, t1, t2, t3);
+        var sample = CreateSample(t0, t1, t2, t3);
 
-        var delta = request.Delta();
+        var delta = sample.Delta();
 
         delta.TotalMilliseconds.ShouldBe(25.0, 1);
     }
@@ -139,9 +139,9 @@ public class RequestTests
         var t2 = baseTime;
         var t3 = baseTime;
 
-        var request = CreateRequest(t0, t1, t2, t3);
+        var sample = CreateSample(t0, t1, t2, t3);
 
-        var delta = request.Delta();
+        var delta = sample.Delta();
 
         delta.TotalMilliseconds.ShouldBe(0.0, 1);
     }
@@ -158,9 +158,9 @@ public class RequestTests
         var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, (NtpTimestamp?)null);
 
-        var request = CreateRequestWithPackets(clientPacket, serverPacket);
+        var sample = CreateSampleWithPackets(clientPacket, serverPacket);
 
-        Should.Throw<ApplicationException>(() => request.Theta());
+        Should.Throw<ApplicationException>(() => sample.Theta());
     }
 
     [Fact]
@@ -175,12 +175,12 @@ public class RequestTests
         var clientPacket = TransmitPacketHeader.CreateNewPacket(new MonotonicClock());
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, (NtpTimestamp?)null);
 
-        var request = CreateRequestWithPackets(clientPacket, serverPacket);
+        var sample = CreateSampleWithPackets(clientPacket, serverPacket);
 
-        Should.Throw<ApplicationException>(() => request.Delta());
+        Should.Throw<ApplicationException>(() => sample.Delta());
     }
 
-    private static Request CreateRequest(
+    private static Sample CreateSample(
         DateTime t0, DateTime t1, DateTime t2, DateTime t3)
     {
         var t0Ntp = NtpTimestamp.FromDateTime(t0);
@@ -196,7 +196,7 @@ public class RequestTests
 
         var serverPacket = CreateServerPacket(t0Ntp, t1Ntp, t2Ntp, t3Ntp);
 
-        return CreateRequestWithPackets(clientPacket, serverPacket);
+        return CreateSampleWithPackets(clientPacket, serverPacket);
     }
 
     private static Packet<ReceivePacketHeader> CreateServerPacket(
@@ -247,7 +247,7 @@ public class RequestTests
         return Packet<ReceivePacketHeader>.CreateNewFromHeader(header);
     }
 
-    private static Request CreateRequestWithPackets(
+    private static Sample CreateSampleWithPackets(
         Packet<TransmitPacketHeader> clientPacket,
         Packet<ReceivePacketHeader> serverPacket)
     {
@@ -259,7 +259,7 @@ public class RequestTests
 
         var args = new object[] { clientPacket, serverPacket };
 
-        var ctor = typeof(Request).GetConstructor(
+        var ctor = typeof(Sample).GetConstructor(
             BindingFlags.NonPublic | BindingFlags.Instance,
             null,
             types,
@@ -267,9 +267,9 @@ public class RequestTests
 
         if (ctor == null)
         {
-            throw new InvalidOperationException("Request constructor not found");
+            throw new InvalidOperationException("Sample constructor not found");
         }
 
-        return (Request)ctor.Invoke(args)!;
+        return (Sample)ctor.Invoke(args)!;
     }
 }

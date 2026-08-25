@@ -47,12 +47,11 @@ public sealed class Client
     public static Client CreateForIpAddress(IMonotonicClock clock, IPAddress address) => new (address, clock);
 
     /// <summary>
-    /// Sends an NTP request to the configured server and returns the request/response exchange.
+    /// Samples the configured server and returns the request/response exchange.
     /// </summary>
     /// <param name="ct">Cancellation token for the network operation.</param>
-    /// <returns>A <see cref="Request"/> containing the exchange data with calculated offset and delay.</returns>
-    // TODO rename to SampleAsync
-    public async Task<Request> ConnectAsync(CancellationToken ct = default)
+    /// <returns>A <see cref="Sample"/> containing the exchange data with calculated offset and delay.</returns>
+    public async Task<Sample> SampleAsync(CancellationToken ct = default)
     {
         using var client = new UdpClient();
         var requestPacket = TransmitPacketHeader.CreateNewPacket(_clock);
@@ -64,7 +63,7 @@ public sealed class Client
         var response = await client.Client.ReceiveFromAsync(buffer, SocketFlags.None, _endPoint, ct);
         var receivePacket = ReadResponse(response, buffer, _clock, requestPacket.Header.TransmitTimestamp);
         Log.Debug("Received {Bytes} bytes from `{endpoint}`.", response.ReceivedBytes, _endPoint);
-        return new Request(requestPacket, receivePacket);
+        return new Sample(requestPacket, receivePacket);
     }
 
     private static Packet<ReceivePacketHeader> ReadResponse(

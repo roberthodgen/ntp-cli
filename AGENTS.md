@@ -33,7 +33,7 @@ the transmit timestamp (`xmt`) field and leaves the origin timestamp (`org`) zer
 The server copies the request's `xmt` into the response's `org` field, sets `rec`
 to the server receive time, and sets `xmt` to the server transmit time.
 
-Request `xmt` capture is intentionally deferred until `Packet.Encode()` because
+Client request packet `xmt` capture is intentionally deferred until `Packet.Encode()` because
 encoding is the last client-controlled point before `SendToAsync` hands bytes to
 the socket. `TransmitTimestamp.FromClock(clock)` creates a deferred timestamp;
 `Encode()` captures and caches the value, and `TransmitTimestamp.Value` must not
